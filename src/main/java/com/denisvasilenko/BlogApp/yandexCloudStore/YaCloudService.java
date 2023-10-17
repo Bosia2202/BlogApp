@@ -7,19 +7,18 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.dynamodbv2.model.Put;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Logger;
-
+import java.net.URL;
 
 @Service
 @Log4j2
@@ -43,29 +42,18 @@ public class YaCloudService{
     }
 
     public void uploadFiles(String Author,String key,String ArticleContent){
-        File tempFile=new File("temp.txt");
-        try {
-            FileWriter fileWriter= new FileWriter(tempFile);
-            fileWriter.write(ArticleContent);
-            fileWriter.close();
-            log.debug("Temp text file created and wrote article content text ");
-            s3Client.putObject(bucketName,Author + key,tempFile);
-            log.debug("Object "+key+ " has been created.");
-            tempFile.deleteOnExit();
-            log.debug("Temp text file delete");
-        } catch (AmazonS3Exception e) {
-            log.error("Failed loading file" +
-                    "Error AmazonS3Exception "+e);
-        } catch(SdkClientException e) {
-            log.error("Failed loading file" +
-                    "Error SdkClientException "+e);
-        } catch (IOException e) {
-            log.error("Failed to writing file");
-        }
+        byte[] contentBytes = ArticleContent.getBytes();
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(contentBytes.length);
+        PutObjectRequest request = new PutObjectRequest(bucketName, "test_file_1", new ByteArrayInputStream(contentBytes), metadata);
+        s3Client.putObject(request);
+        System.out.println("Текст успешно загружен в бакет.");
     }
     public String getArticleText(String key){
         try {
             S3Object s3Object = s3Client.getObject(bucketName, key);
+            String url=s3Client.getUrl(bucketName,key).toString();
+            System.out.println(url);
             log.debug("Get file");
             S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
             String ObjContent = IOUtils.toString(s3ObjectInputStream);
@@ -77,9 +65,22 @@ public class YaCloudService{
             return null;
         }
     }
-    private boolean isFolderExists(String key) {
-        ListObjectsV2Result result = this.s3Client.listObjectsV2(this.bucketName, key);
-        return result.getKeyCount() > 0;
+    public void parseURL(String StringURL){
+        URL url = null;
+        try {
+            url = new URL(StringURL);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        URI uri = null;
+        try {
+            uri = url.toURI();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(uri);
+            String d = uri.getQuery();
+            System.out.println(d);
     }
 }
 
