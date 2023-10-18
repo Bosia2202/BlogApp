@@ -19,11 +19,11 @@ public class blogController {
     @GetMapping("/test")
     public String TestContoller() throws IOException, URISyntaxException {
         YaCloudService yaCloudService =new YaCloudService();
-        yaCloudService.parseURL("https://storage.yandexcloud.net/blogapp/test_file_1?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=YCAJEBQcUDPOO9hHVzSfsFHLv%2F20231017%2Fru-central1%2Fs3%2Faws4_request&X-Amz-Date=20231017T102227Z&X-Amz-Expires=3600&X-Amz-Signature=F1D1F8B2F110CCCC331EE1F980C0DD3AB789495171BD0355DA37FC351DF3C521&X-Amz-SignedHeaders=host");
+        yaCloudService.getAllArticles("blogapp");
         //yaCloudService.uploadFiles("sas","Mama","Всем привет новый метод записи");
 //        cloudYandexStore.uploadFiles("How to Create bucket","Hello, today i show you how to create bucket in Yandex.Store Object!" +
 //                "it is a beautiful service");
-        yaCloudService.getArticleText("How to Create bucket");
+     //   yaCloudService.getArticleText("How to Create bucket");
         return "Method end";
     }
 }
