@@ -10,6 +10,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Log4j2
@@ -31,13 +33,14 @@ public class YaCloudService{
         log.info("S3Client created and connected to YandexObject");
     }
 
-    public void uploadFiles(String bucketName,String key,String ArticleContent){
+    public String uploadFiles(String bucketName,String key,String ArticleContent){
         byte[] contentBytes = ArticleContent.getBytes();
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(contentBytes.length);
         PutObjectRequest request = new PutObjectRequest(bucketName, key, new ByteArrayInputStream(contentBytes), metadata);
         s3Client.putObject(request);
         log.info("Text "+key+" uploaded successfully");
+        return s3Client.getUrl(bucketName,key).toString();
     }
     public String getArticleText(String url){
         try {
@@ -57,12 +60,14 @@ public class YaCloudService{
         }
     }
 
-   public void getAllArticles(String bucketName){
+   public List<String> getAllArticles(String bucketName){
         ListObjectsRequest listObjects =new ListObjectsRequest().withBucketName(bucketName).withDelimiter("/").withMaxKeys(300);
         ObjectListing objectListing=s3Client.listObjects(listObjects);
+       List<String> allArticlesName = new ArrayList<>();
         for (S3ObjectSummary objectSummary:objectListing.getObjectSummaries()){
-            System.out.println("Name:"+objectSummary.getKey()+"\nSize:"+objectSummary.getSize());
+            allArticlesName.add(objectSummary.getKey());
         }
+        return allArticlesName;
    }
 
     public void deleteArticle(String url) {
