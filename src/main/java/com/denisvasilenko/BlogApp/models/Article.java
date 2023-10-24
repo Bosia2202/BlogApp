@@ -5,14 +5,12 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name ="Articles")
-public class Articles {
+@Table(name ="articles")
+public class Article {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "user")
-    private String user;
     @Column(name = "nameArticle")
     private String nameArticle;
     @Column(name = "url")
@@ -22,23 +20,27 @@ public class Articles {
     @Column(name = "likes")
     private int likes;
 
-    public Articles(){}
+    @ManyToOne
+    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    private User userOwner;
 
-    public Articles(String user, String nameArticle, String url, String dateOfCreation, int likes) {
-        this.user = user;
+    public Article(){}
+
+    public Article(String nameArticle, String url, String dateOfCreation, int likes) {
         this.nameArticle = nameArticle;
         this.url = url;
         this.dateOfCreation = dateOfCreation;
         this.likes = likes;
     }
 
-    public String getUser() {
-        return user;
+    public Long getId() {
+        return id;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setId(Long id) {
+        this.id = id;
     }
+
 
     public String getNameArticle() {
         return nameArticle;
@@ -72,16 +74,24 @@ public class Articles {
         this.likes = likes;
     }
 
+    public User getUserOwner() {
+        return userOwner;
+    }
+
+    public void setUserOwner(User userOwner) {
+        this.userOwner = userOwner;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Articles articles = (Articles) o;
-        return likes == articles.likes && Objects.equals(id, articles.id) && Objects.equals(user, articles.user) && Objects.equals(nameArticle, articles.nameArticle) && Objects.equals(url, articles.url) && Objects.equals(dateOfCreation, articles.dateOfCreation);
+        Article article = (Article) o;
+        return likes == article.likes && Objects.equals(id, article.id) && Objects.equals(nameArticle, article.nameArticle) && Objects.equals(url, article.url) && Objects.equals(dateOfCreation, article.dateOfCreation) && Objects.equals(userOwner, article.userOwner);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, nameArticle, url, dateOfCreation, likes);
+        return Objects.hash(id, nameArticle, url, dateOfCreation, likes, userOwner);
     }
 }
