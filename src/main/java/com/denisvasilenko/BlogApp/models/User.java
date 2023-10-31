@@ -15,25 +15,25 @@ public class User {
     private Long id;
     @Column(name = "username")
     private String username;
+    @Column(name = "password")
+    private String password;
     @Lob
     @Column(name = "avatarImg")
     private byte[] avatarImg;
     @Column(name = "profileDescription")
     private String profileDescription;
 
-    @OneToMany(mappedBy = "userOwner", cascade = CascadeType.REFRESH,fetch = FetchType.LAZY)
-    private List<Follower> followers;
-
-    @OneToMany(mappedBy = "userOwner", cascade = CascadeType.REFRESH,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userOwner", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Article> articles;
-    @OneToMany(mappedBy = "userOwner",cascade = CascadeType.REFRESH,fetch = FetchType.LAZY)
-    private List<Subscription> subscriptions;
+
     public User(){}
 
-    public User(String username, byte[] avatarImg, String profileDescription) {
+    public User(String username, byte[] avatarImg, String profileDescription, String password, List<Article> articles) {
         this.username = username;
         this.avatarImg = avatarImg;
         this.profileDescription = profileDescription;
+        this.password = password;
+        this.articles = articles;
     }
 
     public Long getId() {
@@ -52,6 +52,14 @@ public class User {
         this.username = username;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public byte[] getAvatarImg() {
         return avatarImg;
     }
@@ -68,13 +76,6 @@ public class User {
         this.profileDescription = profileDescription;
     }
 
-    public List<Follower> getFollowers() {
-        return followers;
-    }
-
-    public void setFollowers(List<Follower> followers) {
-        this.followers = followers;
-    }
 
     public List<Article> getArticles() {
         return articles;
@@ -84,25 +85,17 @@ public class User {
         this.articles = articles;
     }
 
-    public List<Subscription> getSubscriptions() {
-        return subscriptions;
-    }
-
-    public void setSubscriptions(List<Subscription> subscriptions) {
-        this.subscriptions = subscriptions;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Arrays.equals(avatarImg, user.avatarImg) && Objects.equals(profileDescription, user.profileDescription) && Objects.equals(followers, user.followers) && Objects.equals(articles, user.articles) && Objects.equals(subscriptions, user.subscriptions);
+        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Arrays.equals(avatarImg, user.avatarImg) && Objects.equals(profileDescription, user.profileDescription) && Objects.equals(articles, user.articles);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, username, profileDescription, followers, articles, subscriptions);
+        int result = Objects.hash(id, username, password, profileDescription, articles);
         result = 31 * result + Arrays.hashCode(avatarImg);
         return result;
     }

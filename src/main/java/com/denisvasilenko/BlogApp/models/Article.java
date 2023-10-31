@@ -2,6 +2,7 @@ package com.denisvasilenko.BlogApp.models;
 
 import jakarta.persistence.*;
 
+import java.sql.Date;
 import java.util.Objects;
 
 @Entity
@@ -16,7 +17,7 @@ public class Article {
     @Column(name = "url")
     private String url;
     @Column(name = "dateOfCreation")
-    private String dateOfCreation;
+    private Date dateOfCreation;
     @Column(name = "likes")
     private int likes;
 
@@ -26,7 +27,7 @@ public class Article {
 
     public Article(){}
 
-    public Article(String nameArticle, String url, String dateOfCreation, int likes) {
+    public Article(String nameArticle, String url, Date dateOfCreation, int likes) {
         this.nameArticle = nameArticle;
         this.url = url;
         this.dateOfCreation = dateOfCreation;
@@ -58,11 +59,11 @@ public class Article {
         this.url = url;
     }
 
-    public String getDateOfCreation() {
+    public Date getDateOfCreation() {
         return dateOfCreation;
     }
 
-    public void setDateOfCreation(String dateOfCreation) {
+    public void setDateOfCreation(Date dateOfCreation) {
         this.dateOfCreation = dateOfCreation;
     }
 
