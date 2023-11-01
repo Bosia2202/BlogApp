@@ -1,33 +1,27 @@
 package com.denisvasilenko.BlogApp.services;
 
 import com.denisvasilenko.BlogApp.models.Article;
+import com.denisvasilenko.BlogApp.models.ArticlePresentation;
 import com.denisvasilenko.BlogApp.models.User;
 import com.denisvasilenko.BlogApp.repositories.ArticleRepository;
 import com.denisvasilenko.BlogApp.repositories.UserRepository;
+import com.denisvasilenko.BlogApp.yandexCloudStore.UrlParser;
 import com.denisvasilenko.BlogApp.yandexCloudStore.YaCloudService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
 @Log4j2
 public class ProfileServices {
-    private final YaCloudService yaCloudService;
-    private final UserRepository userRepository;
-    private final ArticleRepository articleRepository;
+    private YaCloudService yaCloudService;
+    private UserRepository userRepository;
+    private ArticleRepository articleRepository;
 
-    @Autowired
-    public ProfileServices(YaCloudService yaCloudService, UserRepository userRepository, ArticleRepository articleRepository) {
-        this.yaCloudService = yaCloudService;
-        this.userRepository = userRepository;
-        this.articleRepository = articleRepository;
-    }
 
     public User createUser(User user){
         return userRepository.save(user);
@@ -80,10 +74,29 @@ public class ProfileServices {
         Long mills=System.currentTimeMillis();
         return new Date(mills);
     }
-    public boolean updateArticle(){
-        return true;//TODO
+    public void updateArticle(Article article,String newText){
+        String url=article.getUrl();
+        String bucket;
+        String key;
+        UrlParser urlParser=new UrlParser(url);
+        bucket=urlParser.getBucket();
+        key=urlParser.getKey();
+        yaCloudService.uploadFiles(bucket,key,newText);
     }
-    public boolean deleteArticle(Long id){
-        return true;//TODO
+
+     public List<ArticlePresentation> getAllArticle(){
+        List<ArticlePresentation> listArticlePresentation=new LinkedList<>();
+        List<Article> listArticle=articleRepository.findAll();
+         for (Article tempArticle : listArticle) {
+             listArticlePresentation.add(new ArticlePresentation(tempArticle.getNameArticle(),
+                     yaCloudService.getArticleText(tempArticle.getUrl()),
+                     tempArticle.getUserOwner().getUsername()));
+         }
+      return listArticlePresentation;
     }
+    public void deleteArticle(Article article){
+        articleRepository.deleteById(article.getId());
+    }
+
+
 }
