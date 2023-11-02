@@ -28,7 +28,7 @@ public class User {
 
     public User(){}
 
-    public User(String username, byte[] avatarImg, String profileDescription, String password, List<Article> articles) {
+    public User(String username,String password, byte[] avatarImg, String profileDescription, List<Article> articles) {
         this.username = username;
         this.avatarImg = avatarImg;
         this.profileDescription = profileDescription;

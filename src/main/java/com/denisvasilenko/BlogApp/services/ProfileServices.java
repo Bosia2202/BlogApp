@@ -1,5 +1,7 @@
 package com.denisvasilenko.BlogApp.services;
 
+import com.denisvasilenko.BlogApp.DTO.UserDTO;
+import com.denisvasilenko.BlogApp.DTO.UserDTORegistration;
 import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.models.ArticlePresentation;
 import com.denisvasilenko.BlogApp.models.User;
@@ -98,5 +100,18 @@ public class ProfileServices {
         articleRepository.deleteById(article.getId());
     }
 
-
+    public UserDTO convertUserToDTO(User user){
+        UserDTO userDTO =new UserDTO();
+        userDTO.setUsername(user.getUsername());
+        userDTO.setAvatarImg(user.getAvatarImg());
+        userDTO.setProfileDescription(user.getProfileDescription());
+        return userDTO;
+    }
+    public User convertUserDtoRegistrationToUser(UserDTORegistration userDTORegistration){
+        return new User((userDTORegistration.getUsername()),
+                userDTORegistration.getPassword(),
+                null,
+                null,
+                null);
+    }
 }
