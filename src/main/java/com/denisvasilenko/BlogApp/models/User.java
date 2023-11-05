@@ -1,6 +1,7 @@
 package com.denisvasilenko.BlogApp.models;
 
 import jakarta.persistence.*;
+import org.hibernate.validator.constraints.UniqueElements;
 
 import java.util.Arrays;
 import java.util.List;
@@ -98,5 +99,17 @@ public class User {
         int result = Objects.hash(id, username, password, profileDescription, articles);
         result = 31 * result + Arrays.hashCode(avatarImg);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", avatarImg=" + Arrays.toString(avatarImg) +
+                ", profileDescription='" + profileDescription + '\'' +
+                ", articles=" + articles +
+                '}';
     }
 }

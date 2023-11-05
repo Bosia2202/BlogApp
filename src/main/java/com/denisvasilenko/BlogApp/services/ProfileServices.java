@@ -20,10 +20,17 @@ import java.util.*;
 @Service
 @Log4j2
 public class ProfileServices {
-    private YaCloudService yaCloudService;
-    private UserRepository userRepository;
-    private ArticleRepository articleRepository;
+    private final YaCloudService yaCloudService;
+    private final UserRepository userRepository;
+    private final ArticleRepository articleRepository;
 
+
+    @Autowired
+    public ProfileServices(YaCloudService yaCloudService, UserRepository userRepository, ArticleRepository articleRepository) {
+        this.yaCloudService = yaCloudService;
+        this.userRepository = userRepository;
+        this.articleRepository = articleRepository;
+    }
 
     public User createUser(User user){
         return userRepository.save(user);

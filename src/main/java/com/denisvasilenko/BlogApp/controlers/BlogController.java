@@ -19,8 +19,6 @@ public class BlogController {
         this.profileServices = profileServices;
     }
 
-
-
     @GetMapping("/feed")
    public List<ArticlePresentation> feed() {
         return profileServices.getAllArticle();
@@ -31,10 +29,12 @@ public class BlogController {
     }
     @PostMapping("/registration")
     public ResponseEntity<String> createNewUser(@RequestBody UserDTORegistration userDTORegistration){
+        System.out.println("Starting create user method");
         User newUser=profileServices.convertUserDtoRegistrationToUser(userDTORegistration);
+        System.out.println(newUser.toString());
         profileServices.createUser(newUser);
-        return ResponseEntity.ok("Person created successfully"); //TODO FIX BUG
+        return ResponseEntity.ok("Person created successfully");
     }
 
+
 }
-q
