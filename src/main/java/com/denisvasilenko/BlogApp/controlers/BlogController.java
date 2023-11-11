@@ -1,7 +1,6 @@
 package com.denisvasilenko.BlogApp.controlers;
 
-import com.denisvasilenko.BlogApp.DTO.UserDTO;
-import com.denisvasilenko.BlogApp.DTO.UserDTORegistration;
+import com.denisvasilenko.BlogApp.DTO.JwtRequest;
 import com.denisvasilenko.BlogApp.models.ArticlePresentation;
 import com.denisvasilenko.BlogApp.models.User;
 import com.denisvasilenko.BlogApp.services.ProfileServices;
@@ -42,7 +41,7 @@ public class BlogController {
 //        return profileServices.convertUserToDTO(profileServices.findUserByUserName(userName));
 //    }
     @PostMapping("/registration")
-    public ResponseEntity<String> createNewUser(@RequestBody UserDTORegistration userDTORegistration){
+    public ResponseEntity<String> createNewUser(@RequestBody JwtRequest userDTORegistration){
         System.out.println("Starting create user method");
         User newUser=profileServices.convertUserDtoRegistrationToUser(userDTORegistration);
         System.out.println(newUser.toString());

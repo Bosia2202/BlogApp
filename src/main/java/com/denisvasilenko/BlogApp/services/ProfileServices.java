@@ -1,7 +1,7 @@
 package com.denisvasilenko.BlogApp.services;
 
 import com.denisvasilenko.BlogApp.DTO.UserDTO;
-import com.denisvasilenko.BlogApp.DTO.UserDTORegistration;
+import com.denisvasilenko.BlogApp.DTO.JwtRequest;
 import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.models.ArticlePresentation;
 import com.denisvasilenko.BlogApp.models.User;
@@ -139,7 +139,7 @@ public class ProfileServices implements UserDetailsService {
         userDTO.setProfileDescription(user.getProfileDescription());
         return userDTO;
     }
-    public User convertUserDtoRegistrationToUser(UserDTORegistration userDTORegistration){
+    public User convertUserDtoRegistrationToUser(JwtRequest userDTORegistration){
         return new User((userDTORegistration.getUsername()),
                 userDTORegistration.getPassword(),
                 null,

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class JwtTokenUtills {
 @Value("${jwt:secret}")
     private String secret;
-@Value("$jwt:time")
+@Value("${jwt:time}")
     private Duration jwtLifeTime;
     private SecretKey key;
 

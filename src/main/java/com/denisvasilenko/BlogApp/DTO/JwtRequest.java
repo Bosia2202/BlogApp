@@ -1,6 +1,6 @@
 package com.denisvasilenko.BlogApp.DTO;
 
-public class UserDTORegistration {
+public class JwtRequest {
     private String username;
     private String password;
 
