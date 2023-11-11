@@ -6,33 +6,43 @@ import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.models.ArticlePresentation;
 import com.denisvasilenko.BlogApp.models.User;
 import com.denisvasilenko.BlogApp.repositories.ArticleRepository;
+import com.denisvasilenko.BlogApp.repositories.RoleRepository;
 import com.denisvasilenko.BlogApp.repositories.UserRepository;
 import com.denisvasilenko.BlogApp.yandexCloudStore.UrlParser;
 import com.denisvasilenko.BlogApp.yandexCloudStore.YaCloudService;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
 @Log4j2
-public class ProfileServices {
+public class ProfileServices implements UserDetailsService {
     private final YaCloudService yaCloudService;
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
-
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public ProfileServices(YaCloudService yaCloudService, UserRepository userRepository, ArticleRepository articleRepository) {
+    public ProfileServices(YaCloudService yaCloudService, UserRepository userRepository, ArticleRepository articleRepository, RoleRepository roleRepository) {
         this.yaCloudService = yaCloudService;
         this.userRepository = userRepository;
         this.articleRepository = articleRepository;
+        this.roleRepository = roleRepository;
     }
 
+    @Transactional
     public User createUser(User user){
+        user.setRoleCollection(List.of(roleRepository.findByName("ROLE_USER").get()));
         return userRepository.save(user);
     }
 
@@ -48,10 +58,25 @@ public class ProfileServices {
     public List<User> getAllUsers(){
         return userRepository.findAll();
     }
-    public User findUserByUserName(String name){
-       Optional<User> user = Optional.ofNullable(userRepository.findByUsername(name));
-       return user.orElse(null);
+    public Optional<User> findUserByUserName(String name){
+      return userRepository.findByUsername(name);
     }
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+       User user=findUserByUserName(username).orElseThrow(()->new UsernameNotFoundException(
+               String.format("Пользователь '%s' не найден", username)
+       ));
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                user.getRoleCollection().stream().map(role -> new SimpleGrantedAuthority(role.getName()))
+                        .collect(Collectors.toList())
+
+        );
+    }
+
 
     public List<Article> getAllArticlesByUser(User user){
         return user.getArticles();
@@ -121,4 +146,5 @@ public class ProfileServices {
                 null,
                 null);
     }
+
 }
