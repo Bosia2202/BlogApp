@@ -33,21 +33,23 @@ public class BlogController {
         return "You are exited";
     }
     @GetMapping("/feed")
-   public List<ArticlePresentation> feed() {
-        return profileServices.getAllArticle();
+   public String feed() {
+        return "feed";
+               //
+        // profileServices.getAllArticle();
     }
 //    @GetMapping("/profile/{userName}")
 //    public UserDTO userInfo(@PathVariable ("userName") String userName){
 //        return profileServices.convertUserToDTO(profileServices.findUserByUserName(userName));
 //    }
-    @PostMapping("/registration")
-    public ResponseEntity<String> createNewUser(@RequestBody JwtRequest userDTORegistration){
-        System.out.println("Starting create user method");
-        User newUser=profileServices.convertUserDtoRegistrationToUser(userDTORegistration);
-        System.out.println(newUser.toString());
-        profileServices.createUser(newUser);
-        return ResponseEntity.ok("Person created successfully");
-    }
+//    @PostMapping("/registration")
+//    public ResponseEntity<String> createNewUser(@RequestBody JwtRequest userDTORegistration){
+//        System.out.println("Starting create user method");
+//        User newUser=profileServices.convertUserDtoRegistrationToUser(userDTORegistration);
+//        System.out.println(newUser.toString());
+//        profileServices.createUser(newUser);
+//        return ResponseEntity.ok("Person created successfully");
+//    }
 
     @GetMapping("/info")
     public String userInfo(Principal principal){

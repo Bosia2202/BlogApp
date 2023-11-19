@@ -1,7 +1,9 @@
 package com.denisvasilenko.BlogApp.services;
 
+import com.denisvasilenko.BlogApp.DTO.RegistrationUserDto;
 import com.denisvasilenko.BlogApp.DTO.UserDTO;
 import com.denisvasilenko.BlogApp.DTO.JwtRequest;
+import com.denisvasilenko.BlogApp.config.PasswordEncoderConfig;
 import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.models.ArticlePresentation;
 import com.denisvasilenko.BlogApp.models.User;
@@ -10,14 +12,15 @@ import com.denisvasilenko.BlogApp.repositories.RoleRepository;
 import com.denisvasilenko.BlogApp.repositories.UserRepository;
 import com.denisvasilenko.BlogApp.yandexCloudStore.UrlParser;
 import com.denisvasilenko.BlogApp.yandexCloudStore.YaCloudService;
-import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.*;
@@ -30,19 +33,24 @@ public class ProfileServices implements UserDetailsService {
     private final YaCloudService yaCloudService;
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
+    private final PasswordEncoderConfig passwordEncoderConfig;
 
     @Autowired
-    public ProfileServices(YaCloudService yaCloudService, UserRepository userRepository, ArticleRepository articleRepository, RoleRepository roleRepository) {
+    public ProfileServices(YaCloudService yaCloudService, UserRepository userRepository, ArticleRepository articleRepository,RoleService roleService,PasswordEncoderConfig passwordEncoderConfig) {
         this.yaCloudService = yaCloudService;
         this.userRepository = userRepository;
         this.articleRepository = articleRepository;
-        this.roleRepository = roleRepository;
+        this.roleService=roleService;
+        this.passwordEncoderConfig=passwordEncoderConfig;
     }
 
     @Transactional
-    public User createUser(User user){
-        user.setRoleCollection(List.of(roleRepository.findByName("ROLE_USER").get()));
+    public User createUser(RegistrationUserDto registrationUserDto){
+        User user=new User();
+        user.setUsername(registrationUserDto.getUsername());
+        user.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(registrationUserDto.getPassword()));
+        user.setRoleCollection(List.of(roleService.getUserRole()));
         return userRepository.save(user);
     }
 

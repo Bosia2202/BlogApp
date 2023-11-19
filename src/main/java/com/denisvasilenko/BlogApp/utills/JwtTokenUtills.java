@@ -1,7 +1,6 @@
 package com.denisvasilenko.BlogApp.utills;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -20,18 +19,17 @@ import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtills {
-@Value("${jwt:secret}")
-    private String secret;
-@Value("${jwt:time}")
-    private Duration jwtLifeTime;
+
+    private String secret="5ec1854e91f8a908e2e33cdef2e7e1d92881641cfcb4e4c291b16c26a628214c";
+    private Duration jwtLifeTime=Duration.ofMinutes(30);
     private SecretKey key;
 
     public String generateToken(UserDetails userDetails){
-        key=Keys.hmacShaKeyFor("secret".getBytes());//создаем подпись
+        key= Keys.hmacShaKeyFor(secret.getBytes());
         Map<String,Object> claims=new HashMap<>();
         List<String> roleList=userDetails.getAuthorities().stream().map(
-                GrantedAuthority::getAuthority
-        ).collect(Collectors.toList());
+                GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
         claims.put("roles",roleList);
 
         Date issuedDate=new Date();
@@ -53,6 +51,10 @@ public class JwtTokenUtills {
     }
 
     private Claims getAllClaimsFromToken(String token){
-        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
