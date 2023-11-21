@@ -1,14 +1,13 @@
 package com.denisvasilenko.BlogApp.services;
 
-import com.denisvasilenko.BlogApp.DTO.RegistrationUserDto;
-import com.denisvasilenko.BlogApp.DTO.UserDTO;
-import com.denisvasilenko.BlogApp.DTO.JwtRequest;
+import com.denisvasilenko.BlogApp.DTO.ArticleDto.ArticleDto;
+import com.denisvasilenko.BlogApp.DTO.RegistrationDto.UserRegistrationRequest;
+import com.denisvasilenko.BlogApp.DTO.UserDto.UserInfoDto;
 import com.denisvasilenko.BlogApp.config.PasswordEncoderConfig;
+import com.denisvasilenko.BlogApp.exceptions.AppError;
 import com.denisvasilenko.BlogApp.models.Article;
-import com.denisvasilenko.BlogApp.models.ArticlePresentation;
 import com.denisvasilenko.BlogApp.models.User;
 import com.denisvasilenko.BlogApp.repositories.ArticleRepository;
-import com.denisvasilenko.BlogApp.repositories.RoleRepository;
 import com.denisvasilenko.BlogApp.repositories.UserRepository;
 import com.denisvasilenko.BlogApp.yandexCloudStore.UrlParser;
 import com.denisvasilenko.BlogApp.yandexCloudStore.YaCloudService;
@@ -18,7 +17,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,10 +44,10 @@ public class ProfileServices implements UserDetailsService {
     }
 
     @Transactional
-    public User createUser(RegistrationUserDto registrationUserDto){
+    public User createUser(UserRegistrationRequest userRegistrationRequest){
         User user=new User();
-        user.setUsername(registrationUserDto.getUsername());
-        user.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(registrationUserDto.getPassword()));
+        user.setUsername(userRegistrationRequest.getUsername());
+        user.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userRegistrationRequest.getPassword()));
         user.setRoleCollection(List.of(roleService.getUserRole()));
         return userRepository.save(user);
     }
@@ -73,7 +71,7 @@ public class ProfileServices implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
        User user=findUserByUserName(username).orElseThrow(()->new UsernameNotFoundException(
-               String.format("Пользователь '%s' не найден", username)
+               String.format("User '%s' doesn't found", username)
        ));
 
         return new org.springframework.security.core.userdetails.User(
@@ -85,17 +83,31 @@ public class ProfileServices implements UserDetailsService {
         );
     }
 
+    public UserInfoDto userInfo(String username) throws AppError {
+        if (findUserByUserName(username).isPresent()){
+            User user=findUserByUserName(username).get();
+            return new UserInfoDto(user.getAvatarImg(),
+                    user.getUsername(),
+                    user.getProfileDescription(),
+                    getAllArticlesByUser(user));
+        }
+        else {
+            throw new AppError(404, "User not found");
+        }
+    }
 
-    public List<Article> getAllArticlesByUser(User user){
-        return user.getArticles();
+    public List<ArticleDto> getAllArticlesByUser(User user){
+        TextGetter textGetter =new TextGetter();
+        return user.getArticles().stream().map(textGetter::getTextFromYandexCloud)
+                .collect(Collectors.toList());
     }
     public boolean addArticle(Long id,String text,String articleName){
-        Optional<User> userOptional =userRepository.findById(id);
+        Optional<User> userOptional=userRepository.findById(id);
         if(userOptional.isPresent()) {
             User user=userOptional.get();
             String userName=user.getUsername();
             UUID uuid=UUID.randomUUID();
-            String articleIdentifier=uuid.toString()+userName;
+            String articleIdentifier= uuid +userName;
             String urlByArticle=yaCloudService.uploadFiles("blogapp",articleIdentifier,text);
             Article article=new Article();
             article.setUrl(urlByArticle);
@@ -126,33 +138,8 @@ public class ProfileServices implements UserDetailsService {
         yaCloudService.uploadFiles(bucket,key,newText);
     }
 
-     public List<ArticlePresentation> getAllArticle(){
-        List<ArticlePresentation> listArticlePresentation=new LinkedList<>();
-        List<Article> listArticle=articleRepository.findAll();
-         for (Article tempArticle : listArticle) {
-             listArticlePresentation.add(new ArticlePresentation(tempArticle.getNameArticle(),
-                     yaCloudService.getArticleText(tempArticle.getUrl()),
-                     tempArticle.getUserOwner().getUsername()));
-         }
-      return listArticlePresentation;
-    }
     public void deleteArticle(Article article){
         articleRepository.deleteById(article.getId());
-    }
-
-    public UserDTO convertUserToDTO(User user){
-        UserDTO userDTO =new UserDTO();
-        userDTO.setUsername(user.getUsername());
-        userDTO.setAvatarImg(user.getAvatarImg());
-        userDTO.setProfileDescription(user.getProfileDescription());
-        return userDTO;
-    }
-    public User convertUserDtoRegistrationToUser(JwtRequest userDTORegistration){
-        return new User((userDTORegistration.getUsername()),
-                userDTORegistration.getPassword(),
-                null,
-                null,
-                null);
     }
 
 }

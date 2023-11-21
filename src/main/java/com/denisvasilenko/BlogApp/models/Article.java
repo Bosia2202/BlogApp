@@ -20,7 +20,6 @@ public class Article {
     @Column(name = "dateOfCreation")
     private Date dateOfCreation;
     @Column(name = "likes")
-
     private int likes;
 
     @ManyToOne
@@ -83,10 +82,6 @@ public class Article {
 
     public void setUserOwner(User userOwner) {
         this.userOwner = userOwner;
-    }
-
-    public String getUserName() {
-        return userOwner.getUsername();
     }
 
     @Override

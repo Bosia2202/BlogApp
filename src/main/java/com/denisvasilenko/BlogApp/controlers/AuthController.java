@@ -1,6 +1,7 @@
 package com.denisvasilenko.BlogApp.controlers;
 
-import com.denisvasilenko.BlogApp.DTO.*;
+import com.denisvasilenko.BlogApp.DTO.JWTDto.JwtRequest;
+import com.denisvasilenko.BlogApp.DTO.RegistrationDto.UserRegistrationRequest;
 import com.denisvasilenko.BlogApp.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class AuthController {
       return authService.createAuthToken(authRequest);
     }
     @PostMapping("/registration")
-    public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto){
-     return authService.createNewUser(registrationUserDto);
+    public ResponseEntity<?> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
+     return authService.createNewUser(userRegistrationRequest);
     }
 }

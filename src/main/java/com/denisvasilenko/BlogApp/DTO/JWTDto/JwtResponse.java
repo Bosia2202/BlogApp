@@ -1,4 +1,4 @@
-package com.denisvasilenko.BlogApp.DTO;
+package com.denisvasilenko.BlogApp.DTO.JWTDto;
 
 
 

@@ -1,9 +1,9 @@
 package com.denisvasilenko.BlogApp.services;
 
-import com.denisvasilenko.BlogApp.DTO.JwtRequest;
-import com.denisvasilenko.BlogApp.DTO.JwtResponse;
-import com.denisvasilenko.BlogApp.DTO.RegistrationUserDto;
-import com.denisvasilenko.BlogApp.DTO.UserRegistrationResponse;
+import com.denisvasilenko.BlogApp.DTO.JWTDto.JwtRequest;
+import com.denisvasilenko.BlogApp.DTO.JWTDto.JwtResponse;
+import com.denisvasilenko.BlogApp.DTO.RegistrationDto.UserRegistrationRequest;
+import com.denisvasilenko.BlogApp.DTO.RegistrationDto.UserRegistrationResponse;
 import com.denisvasilenko.BlogApp.exceptions.AppError;
 import com.denisvasilenko.BlogApp.models.User;
 import com.denisvasilenko.BlogApp.utills.JwtTokenUtills;
@@ -39,17 +39,17 @@ public class AuthService {
         }
         UserDetails userDetails=profileServices.loadUserByUsername(authRequest.getUsername());
         String token=jwtTokenUtills.generateToken(userDetails);
-        return  ResponseEntity.ok(new JwtResponse(token));
+        return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto){
-        if(!registrationUserDto.getPassword().equals(registrationUserDto.getConfirmPassword())){
-            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),"Uncorect password"),HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
+        if(!userRegistrationRequest.getPassword().equals(userRegistrationRequest.getConfirmPassword())){
+            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),"Incorrect password"),HttpStatus.BAD_REQUEST);
         }
-        if(profileServices.findUserByUserName(registrationUserDto.getUsername()).isPresent()){
-            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),"Uncorect password"),HttpStatus.BAD_REQUEST);
+        if(profileServices.findUserByUserName(userRegistrationRequest.getUsername()).isPresent()){
+            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),"Incorrect password"),HttpStatus.BAD_REQUEST);
         }
-        User user=profileServices.createUser(registrationUserDto);
+        User user=profileServices.createUser(userRegistrationRequest);
         return ResponseEntity.ok(new UserRegistrationResponse(user.getId(),user.getUsername()));
     }
 }

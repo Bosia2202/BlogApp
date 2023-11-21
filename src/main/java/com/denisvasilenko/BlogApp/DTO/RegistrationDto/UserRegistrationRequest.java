@@ -1,9 +1,9 @@
-package com.denisvasilenko.BlogApp.DTO;
+package com.denisvasilenko.BlogApp.DTO.RegistrationDto;
 
-public class JwtRequest {
+public class UserRegistrationRequest {
     private String username;
     private String password;
-
+    private String confirmPassword;
 
     public String getUsername() {
         return username;
@@ -19,5 +19,13 @@ public class JwtRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 }
