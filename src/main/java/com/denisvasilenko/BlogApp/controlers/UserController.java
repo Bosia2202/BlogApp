@@ -1,5 +1,6 @@
 package com.denisvasilenko.BlogApp.controlers;
 
+import com.denisvasilenko.BlogApp.DTO.ArticleDto.ArticleDto;
 import com.denisvasilenko.BlogApp.DTO.UserDto.UserInfoDto;
 import com.denisvasilenko.BlogApp.exceptions.AppError;
 import com.denisvasilenko.BlogApp.services.ProfileServices;
@@ -27,11 +28,7 @@ public class UserController {
     public String exit(){
         return "You are exited";
     }
-    @GetMapping("/feed")
-   public String feed() {
 
-        return profileServices.getAllArticle();
-    }
     @GetMapping("/profile/{userName}")
     public UserInfoDto userInfo(@PathVariable ("userName") String userName) throws AppError {
         return profileServices.userInfo(userName);

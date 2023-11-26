@@ -8,6 +8,7 @@ public record ArticleDto(
         String nameArticle,
         String text,
         int likes,
-        Date dateOfCreation) {
+        Date dateOfCreation,
+        String Author) {
 
 }
