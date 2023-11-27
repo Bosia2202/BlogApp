@@ -4,16 +4,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class NotFoundArticleException extends RuntimeException {
-        private String articleName;
+public class NotFoundUserException extends RuntimeException {
+
+        private String username;
         private String message;
         private Date timestamp;
 
-        public NotFoundArticleException(String articleName) {
-            message="Article "+"'"+articleName+"'"+" doesn't found";
+        public NotFoundUserException(String username) {
+            message="User "+"'"+username+"'"+" doesn't found";
             this.timestamp = new Date();
         }
 }
-

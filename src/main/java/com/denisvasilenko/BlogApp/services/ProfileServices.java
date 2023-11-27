@@ -44,10 +44,6 @@ public class ProfileServices implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    public boolean checkUserExist(String username){
-        return findUserByUserName(username).isPresent();
-    }
-
     public User uploadUser(Long id,User user)
     {
       user.setId(id);
