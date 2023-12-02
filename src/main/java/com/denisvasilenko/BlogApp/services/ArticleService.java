@@ -11,6 +11,7 @@ import com.denisvasilenko.BlogApp.repositories.ArticleRepository;
 import com.denisvasilenko.BlogApp.yandexCloudStore.UrlParser;
 import com.denisvasilenko.BlogApp.yandexCloudStore.YaCloudService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,9 +24,15 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class ArticleService {
-    private ArticleRepository articleRepository;
-    private ProfileServices profileServices;
-    private YaCloudService yaCloudService;
+    private final ArticleRepository articleRepository;
+    private final ProfileServices profileServices;
+    private final YaCloudService yaCloudService;
+    @Autowired
+    public ArticleService(ArticleRepository articleRepository, ProfileServices profileServices, YaCloudService yaCloudService) {
+        this.articleRepository = articleRepository;
+        this.profileServices = profileServices;
+        this.yaCloudService = yaCloudService;
+    }
 
     public ArticleDto showArticle(String username, String articleName) {
         if (checkArticleByUser(username, articleName)) {

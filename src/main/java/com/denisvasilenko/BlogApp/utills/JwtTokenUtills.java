@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenUtills {
 
-    private String secret="5ec1854e91f8a908e2e33cdef2e7e1d92881641cfcb4e4c291b16c26a628214c";
-    private Duration jwtLifeTime=Duration.ofMinutes(30);
+    private final String secret="5ec1854e91f8a908e2e33cdef2e7e1d92881641cfcb4e4c291b16c26a628214c";
+    private final Duration jwtLifeTime=Duration.ofHours(12);
     private SecretKey key;
 
     public String generateToken(UserDetails userDetails){

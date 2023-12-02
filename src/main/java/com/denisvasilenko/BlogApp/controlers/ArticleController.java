@@ -39,7 +39,7 @@ public class ArticleController {
     }
 
     @PatchMapping("/{author}/{articleName}")
-    public ResponseEntity<?> patchPost (@PathVariable String author,@PathVariable String articleName,@RequestBody String newText,Principal principal){ //TODO: Реализовать метод обновления статьи.
+    public ResponseEntity<?> patchPost (@PathVariable String author,@PathVariable String articleName,@RequestBody String newText,Principal principal){ //TODO: Пофиксить баг с тем что текст записывается несколько раз.
         return articleService.updateArticle(author,principal.getName(),articleName,newText);
     }
 
