@@ -34,7 +34,7 @@ public class ArticleController {
 
 
     @PutMapping("/newPost")
-    public ResponseEntity<String> createNewPost(@RequestBody CreateArticleDto createArticleDto, Principal principal) { //TODO: Реализовать метод создания статьи.
+    public ResponseEntity<String> createNewPost(@RequestBody CreateArticleDto createArticleDto, Principal principal) {
         return articleService.addArticle(principal.getName(),createArticleDto);
     }
 
@@ -44,7 +44,7 @@ public class ArticleController {
     }
 
     @DeleteMapping("/{author}/{articleName}")
-    public ResponseEntity<?> deletePost (@PathVariable String author,@PathVariable String articleName,Principal principal){ //TODO: Реализовать метод удаления статьи.
+    public ResponseEntity<?> deletePost (@PathVariable String author,@PathVariable String articleName,Principal principal){
         return articleService.deleteArticle(author,principal.getName(),articleName);
     }
     @ExceptionHandler

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.List;
@@ -27,6 +28,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final ProfileServices profileServices;
     private final YaCloudService yaCloudService;
+
     @Autowired
     public ArticleService(ArticleRepository articleRepository, ProfileServices profileServices, YaCloudService yaCloudService) {
         this.articleRepository = articleRepository;
@@ -41,6 +43,7 @@ public class ArticleService {
             return articleDtoMapper.getTextFromYandexCloud(article);
         } else throw new NotFoundArticleException(articleName);
     }
+
 
     private boolean checkArticleByUser(String username, String articleName) {
         User user = profileServices.findUserByUserName(username)
@@ -57,6 +60,7 @@ public class ArticleService {
         }
     }
 
+    @Transactional
     public ResponseEntity<String> addArticle(String username, CreateArticleDto createArticleDto) {
         User user = profileServices.findUserByUserName(username)
                 .orElseThrow(() -> new NotFoundUserException(username));
@@ -80,6 +84,7 @@ public class ArticleService {
         return new Date(mills);
     }
 
+    @Transactional
     public ResponseEntity<String> updateArticle(String author, String currentUser, String articleName, String newText) {
         if (author.equals(currentUser)) {
             if (checkArticleByUser(author, articleName)) {
@@ -87,29 +92,28 @@ public class ArticleService {
                 String url = article.getUrl();
                 UrlParser urlParser = new UrlParser(url);
                 String bucket = urlParser.getBucket();
-                String key = urlParser.getKey();
-                yaCloudService.uploadFiles(bucket, key, newText);
+                Optional<String> key = urlParser.getKey();
+                if(key.isEmpty()) {
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+                yaCloudService.uploadFiles(bucket, key.get(), newText);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        else throw new AccessException();
+        } else throw new AccessException();
     }
 
-    public ResponseEntity<String> deleteArticle(String author, String currentUser, String articleName){
-        if (author.equals(currentUser)) {
-            if(checkArticleByUser(currentUser,articleName)) {
-                Article article=articleRepository.findByNameArticle(articleName)
-                        .orElseThrow(()->new NotFoundArticleException(articleName));
+    @Transactional
+    public ResponseEntity<String> deleteArticle(String author, String currentUser, String articleName) {
+    if (author.equals(currentUser)) {
+            if (checkArticleByUser(currentUser, articleName)) {
+                Article article = articleRepository.findByNameArticle(articleName)
+                        .orElseThrow(() -> new NotFoundArticleException(articleName));
                 yaCloudService.deleteArticle(article.getUrl());
+                log.info("ARTICLE ID: " + article.getId());
                 articleRepository.deleteById(article.getId());
                 return new ResponseEntity<>(HttpStatus.OK);
-            }
-            else throw new NotFoundArticleException(articleName);
-        }
-        else throw new AccessException();
+            } else throw new NotFoundArticleException(articleName);
+        } else throw new AccessException();
     }
-
-
-
 }

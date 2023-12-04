@@ -1,5 +1,6 @@
 package com.denisvasilenko.BlogApp.config;
 
+import com.denisvasilenko.BlogApp.controlers.ArticleController;
 import com.denisvasilenko.BlogApp.services.ProfileServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,8 @@ public class SecurityConfig {
                         .requestMatchers("/feed").authenticated()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/info").authenticated()
+                        .requestMatchers("/newPost").authenticated()
+                        .requestMatchers("/{author}/{articleName}").authenticated()
                         .anyRequest().permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

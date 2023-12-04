@@ -1,6 +1,7 @@
 package com.denisvasilenko.BlogApp.yandexCloudStore;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 public class UrlParser {
         private String bucket;
@@ -27,7 +28,12 @@ public UrlParser(String url) {
     public String getBucket() {
         return bucket;
     }
-    public String getKey() {
-        return key;
+    public Optional<String> getKey() {
+        if(key.matches("")) {
+            return Optional.empty();
+        }
+        else {
+            return Optional.of(key);
+        }
     }
 }

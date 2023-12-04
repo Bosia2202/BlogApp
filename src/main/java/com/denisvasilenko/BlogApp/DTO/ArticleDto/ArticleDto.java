@@ -10,5 +10,4 @@ public record ArticleDto(
         int likes,
         Date dateOfCreation,
         String Author) {
-
 }

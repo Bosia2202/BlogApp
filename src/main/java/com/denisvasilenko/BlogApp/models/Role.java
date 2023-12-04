@@ -2,7 +2,6 @@ package com.denisvasilenko.BlogApp.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 @Entity
 @Data
 @Table(name = "roles")

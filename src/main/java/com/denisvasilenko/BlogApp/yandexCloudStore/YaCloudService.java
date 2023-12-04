@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Log4j2
@@ -42,21 +43,24 @@ public class YaCloudService{
         log.info("Text "+key+" uploaded successfully");
         return s3Client.getUrl(bucketName,key).toString();
     }
-    public String getArticleText(String url){
+    public Optional<String> getArticleText(String url){
         try {
             UrlParser urlParser=new UrlParser(url);
             String bucketName = urlParser.getBucket();
-            String key=urlParser.getKey();
-            S3Object s3Object = s3Client.getObject(bucketName, key);
+            Optional<String> key=urlParser.getKey();
+            if(key.isEmpty()) {
+                return Optional.empty();
+            }
+            S3Object s3Object = s3Client.getObject(bucketName, key.get());
             log.debug("Get file");
             S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
             String ObjContent = IOUtils.toString(s3ObjectInputStream);
             log.info("Article "+key+" content got and return");
-            return ObjContent;
+            return Optional.of(ObjContent);
         }
         catch (IOException e){
             log.error("Failed to convert to String" +e);
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -72,10 +76,14 @@ public class YaCloudService{
 
     public void deleteArticle(String url) {
         try {
-            UrlParser urlParser=new UrlParser(url);
-            String bucketName=urlParser.getBucket();
-            String key=urlParser.getKey();
-            s3Client.deleteObject(bucketName, key);
+            UrlParser urlParser = new UrlParser(url);
+            String bucketName = urlParser.getBucket();
+
+            Optional<String> key = urlParser.getKey();
+            if(key.isEmpty()) {
+                return;
+            }
+            s3Client.deleteObject(bucketName, key.get());
             log.info("Article deleted:"+key);
         }
         catch (AmazonS3Exception e) {

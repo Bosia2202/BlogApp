@@ -14,10 +14,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.util.stream.Collectors;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
