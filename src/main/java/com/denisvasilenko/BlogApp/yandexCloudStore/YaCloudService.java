@@ -1,4 +1,5 @@
 package com.denisvasilenko.BlogApp.yandexCloudStore;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -19,48 +20,54 @@ import java.util.Optional;
 public class YaCloudService{
     private final AmazonS3 s3Client;
 
-    public YaCloudService(){
-        AWSCredentials credentials = new BasicAWSCredentials(
-                "YCAJExVGFzxJoYQ3X5rDuRWOX", "YCMqgcw71r3382pOr0m3wo-Y77gsdXXhZvSTdofp"
-        );
+    public YaCloudService() {
+        AWSCredentials credentials = new BasicAWSCredentials("YCAJExVGFzxJoYQ3X5rDuRWOX", "YCMqgcw71r3382pOr0m3wo-Y77gsdXXhZvSTdofp");
         this.s3Client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withEndpointConfiguration(
-                        new AmazonS3ClientBuilder.EndpointConfiguration(
-                                "storage.yandexcloud.net", "ru-central1"
-                        )
-                )
+                .withEndpointConfiguration(new AmazonS3ClientBuilder.EndpointConfiguration("storage.yandexcloud.net", "ru-central1"))
                 .build();
         log.info("S3Client created and connected to YandexObject");
     }
 
-    public String uploadFiles(String bucketName,String key,String ArticleContent){
-        byte[] contentBytes = ArticleContent.getBytes();
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(contentBytes.length);
-        PutObjectRequest request = new PutObjectRequest(bucketName, key, new ByteArrayInputStream(contentBytes), metadata);
-        s3Client.putObject(request);
-        log.info("Text "+key+" uploaded successfully");
-        return s3Client.getUrl(bucketName,key).toString();
+    public Optional<String> uploadFiles(String bucketName, String key, String ArticleContent) {
+        try {
+            byte[] articleContentBytes = ArticleContent.getBytes();
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(articleContentBytes.length);
+            s3Client.putObject(new PutObjectRequest(bucketName, key, new ByteArrayInputStream(articleContentBytes), metadata));
+            log.info("Text " + key + " uploaded successfully");
+            return Optional.of(s3Client.getUrl(bucketName, key).toString());
+        }
+        catch (AmazonS3Exception amazonS3Exception) {
+            if (amazonS3Exception.getErrorCode().equals("NoSuchBucket")) {
+                log.error("Bucket '"+bucketName+"' doesn't exists");
+            }
+            else {
+                log.error(amazonS3Exception.getMessage());
+            }
+            return Optional.empty();
+        }
+        catch (NullPointerException nullPointerException) {
+            log.error(nullPointerException.getMessage());
+            return Optional.empty();
+        }
     }
-    public Optional<String> getArticleText(String url){
+
+    public String getArticleText(String url){
         try {
             UrlParser urlParser=new UrlParser(url);
             String bucketName = urlParser.getBucket();
-            Optional<String> key=urlParser.getKey();
-            if(key.isEmpty()) {
-                return Optional.empty();
-            }
-            S3Object s3Object = s3Client.getObject(bucketName, key.get());
-            log.debug("Get file");
+            String key=urlParser.getKey();
+            S3Object s3Object = s3Client.getObject(bucketName, key);
+            //log.debug("Get file");
             S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
             String ObjContent = IOUtils.toString(s3ObjectInputStream);
-            log.info("Article "+key+" content got and return");
-            return Optional.of(ObjContent);
+            //log.info("Article "+key+" content got and return");
+            return ObjContent;
         }
         catch (IOException e){
-            log.error("Failed to convert to String" +e);
-            return Optional.empty();
+            //log.error("Failed to convert to String" +e);
+            return null;
         }
     }
 
@@ -76,15 +83,11 @@ public class YaCloudService{
 
     public void deleteArticle(String url) {
         try {
-            UrlParser urlParser = new UrlParser(url);
-            String bucketName = urlParser.getBucket();
-
-            Optional<String> key = urlParser.getKey();
-            if(key.isEmpty()) {
-                return;
-            }
-            s3Client.deleteObject(bucketName, key.get());
-            log.info("Article deleted:"+key);
+            UrlParser urlParser=new UrlParser(url);
+            String bucketName=urlParser.getBucket();
+            String key=urlParser.getKey();
+            s3Client.deleteObject(bucketName, key);
+          //  log.info("Article deleted:"+key);
         }
         catch (AmazonS3Exception e) {
             e.printStackTrace();
