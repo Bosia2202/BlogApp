@@ -63,7 +63,7 @@ public class ArticleService {
         String userName = user.getUsername();
         UUID uuid = UUID.randomUUID();
         String articleIdentifier = uuid + userName + createArticleDto.articleName();
-        String urlByArticle = yaCloudService.uploadFiles("blogapp", articleIdentifier, createArticleDto.text());
+        String urlByArticle = yaCloudService.uploadFiles("blogapp", articleIdentifier, createArticleDto.text()).get();
         Article article = new Article();
         article.setNameArticle(createArticleDto.articleName());
         article.setUserOwner(user);
