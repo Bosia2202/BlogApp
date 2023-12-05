@@ -7,6 +7,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
+import com.denisvasilenko.BlogApp.models.Article;
+import com.denisvasilenko.BlogApp.repositories.ArticleRepository;
+import com.denisvasilenko.BlogApp.yandexCloudStore.DTO.CloudUploadRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
@@ -19,7 +22,6 @@ import java.util.Optional;
 @Log4j2
 public class YaCloudService{
     private final AmazonS3 s3Client;
-
     public YaCloudService() {
         AWSCredentials credentials = new BasicAWSCredentials("YCAJExVGFzxJoYQ3X5rDuRWOX", "YCMqgcw71r3382pOr0m3wo-Y77gsdXXhZvSTdofp");
         this.s3Client = AmazonS3ClientBuilder.standard()
@@ -29,18 +31,20 @@ public class YaCloudService{
         log.info("S3Client created and connected to YandexObject");
     }
 
-    public Optional<String> uploadFiles(String bucketName, String key, String ArticleContent) {
+    public Optional<Article> uploadFile(CloudUploadRequest cloudUploadRequest) {
         try {
-            byte[] articleContentBytes = ArticleContent.getBytes();
+            byte[] articleContentBytes = cloudUploadRequest.getArticleContent().getBytes();
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(articleContentBytes.length);
-            s3Client.putObject(new PutObjectRequest(bucketName, key, new ByteArrayInputStream(articleContentBytes), metadata));
-            log.info("Text " + key + " uploaded successfully");
-            return Optional.of(s3Client.getUrl(bucketName, key).toString());
+            s3Client.putObject(new PutObjectRequest(cloudUploadRequest.getBucketName(),
+                    cloudUploadRequest.getKey(), new ByteArrayInputStream(articleContentBytes), metadata));
+            log.info("Text '" + cloudUploadRequest.getKey() + "' uploaded successfully");
+            return Optional.of(cloudUploadRequestMapperWithUrlOnArticle(cloudUploadRequest,
+                    s3Client.getUrl(cloudUploadRequest.getBucketName(),cloudUploadRequest.getKey()).toString()));
         }
         catch (AmazonS3Exception amazonS3Exception) {
             if (amazonS3Exception.getErrorCode().equals("NoSuchBucket")) {
-                log.error("Bucket '"+bucketName+"' doesn't exists");
+                log.error("Bucket '"+cloudUploadRequest.getBucketName()+"' doesn't exists");
             }
             else {
                 log.error(amazonS3Exception.getMessage());
@@ -48,9 +52,18 @@ public class YaCloudService{
             return Optional.empty();
         }
         catch (NullPointerException nullPointerException) {
-            log.error(nullPointerException.getMessage());
+            log.error("Wrong arguments in the uploadFile"+nullPointerException.getMessage());
             return Optional.empty();
         }
+    }
+    private Article cloudUploadRequestMapperWithUrlOnArticle(CloudUploadRequest cloudUploadRequest,String url) {
+        Article article = new Article();
+        article.setNameArticle(cloudUploadRequest.getArticleName());
+        article.setLikes(cloudUploadRequest.getLikes());
+        article.setUserOwner(cloudUploadRequest.getUserOwner());
+        article.setDateOfCreation(cloudUploadRequest.getDateOfCreation());
+        article.setUrl(url);
+        return article;
     }
 
     public String getArticleText(String url){

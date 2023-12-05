@@ -3,11 +3,13 @@ package com.denisvasilenko.BlogApp.services;
 import com.denisvasilenko.BlogApp.DTO.ArticleDto.ArticleDto;
 import com.denisvasilenko.BlogApp.DTO.ArticleDto.CreateArticleDto;
 import com.denisvasilenko.BlogApp.exceptions.AccessException;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntCreatedRuntimeExceptions;
 import com.denisvasilenko.BlogApp.exceptions.NotFoundArticleException;
 import com.denisvasilenko.BlogApp.exceptions.NotFoundUserException;
 import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.models.User;
 import com.denisvasilenko.BlogApp.repositories.ArticleRepository;
+import com.denisvasilenko.BlogApp.yandexCloudStore.DTO.CloudUploadRequest;
 import com.denisvasilenko.BlogApp.yandexCloudStore.UrlParser;
 import com.denisvasilenko.BlogApp.yandexCloudStore.YaCloudService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,18 +64,20 @@ public class ArticleService {
 
     @Transactional
     public ResponseEntity<String> addArticle(String username, CreateArticleDto createArticleDto) {
-        User user = profileServices.findUserByUserName(username)
+        User userOwner = profileServices.findUserByUserName(username)
                 .orElseThrow(() -> new NotFoundUserException(username));
-        String userName = user.getUsername();
+        String userName = userOwner.getUsername();
         UUID uuid = UUID.randomUUID();
         String articleIdentifier = uuid + userName + createArticleDto.articleName();
-        String urlByArticle = yaCloudService.uploadFiles("blogapp", articleIdentifier, createArticleDto.text()).get();
-        Article article = new Article();
-        article.setNameArticle(createArticleDto.articleName());
-        article.setUserOwner(user);
-        article.setUrl(urlByArticle);
-        article.setDateOfCreation(getCurrentDate());
-        article.setLikes(0);
+        CloudUploadRequest cloudUploadRequest=new CloudUploadRequest(
+                "blogapp",
+                            articleIdentifier,
+                            createArticleDto.articleName(),
+                            createArticleDto.articleContent(),
+                            userOwner,
+                            getCurrentDate()
+        );
+        Article article = yaCloudService.uploadFile(cloudUploadRequest).orElseThrow(()->new ArticleDoesntCreatedRuntimeExceptions(createArticleDto.articleName()));
         articleRepository.save(article);
         log.info("Article " + createArticleDto + " by " + userName + " added in database");
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -96,7 +100,7 @@ public class ArticleService {
                 if(key.isEmpty()) {
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                 }
-                yaCloudService.uploadFiles(bucket, key.get(), newText);
+                yaCloudService.uploadFile(bucket, key.get(), newText);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
