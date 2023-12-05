@@ -64,23 +64,31 @@ public class ArticleService {
 
     @Transactional
     public ResponseEntity<String> addArticle(String username, CreateArticleDto createArticleDto) {
-        User userOwner = profileServices.findUserByUserName(username)
-                .orElseThrow(() -> new NotFoundUserException(username));
-        String userName = userOwner.getUsername();
-        UUID uuid = UUID.randomUUID();
-        String articleIdentifier = uuid + userName + createArticleDto.articleName();
-        CloudUploadRequest cloudUploadRequest=new CloudUploadRequest(
-                "blogapp",
-                            articleIdentifier,
-                            createArticleDto.articleName(),
-                            createArticleDto.articleContent(),
-                            userOwner,
-                            getCurrentDate()
-        );
-        Article article = yaCloudService.uploadFile(cloudUploadRequest).orElseThrow(()->new ArticleDoesntCreatedRuntimeExceptions(createArticleDto.articleName()));
-        articleRepository.save(article);
-        log.info("Article " + createArticleDto + " by " + userName + " added in database");
-        return new ResponseEntity<>(HttpStatus.CREATED);
+     try {
+         User userOwner = profileServices.findUserByUserName(username)
+                 .orElseThrow(() -> new NotFoundUserException(username));
+         String userName = userOwner.getUsername();
+         UUID uuid = UUID.randomUUID();
+         String articleIdentifier = uuid + userName + createArticleDto.articleName();
+         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(
+                 "blogapp",
+                 articleIdentifier,
+                 createArticleDto.articleName(),
+                 createArticleDto.articleContent(),
+                 userOwner,
+                 getCurrentDate()
+         );
+         Article article = yaCloudService.uploadFile(cloudUploadRequest).orElseThrow(() -> new ArticleDoesntCreatedRuntimeExceptions(createArticleDto.articleName()));
+         articleRepository.save(article);
+         log.info("Article " + createArticleDto + " by " + userName + " added in database");
+         return new ResponseEntity<>(HttpStatus.CREATED);
+     }
+     catch (ArticleDoesntCreatedRuntimeExceptions articleDoesntCreatedRuntimeExceptions) {
+         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+     }
+     catch (NotFoundUserException notFoundUserException) {
+         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+     }
     }
 
     private Date getCurrentDate() {
