@@ -7,7 +7,7 @@ import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ArticleDoesntCreatedRuntimeExceptions extends RuntimeException{
+public class ArticleDoesntCreatedRuntimeExceptions extends RuntimeException {
     private String articleName;
     private String message;
     private Date timestamp;

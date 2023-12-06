@@ -1,20 +1,22 @@
 package com.denisvasilenko.BlogApp.yandexCloudStore;
+import com.denisvasilenko.BlogApp.exceptions.UrlParser.IncorrectURLException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
 public class UrlParser {
-        private String bucket;
-        private String key;
+        private final String bucket;
+        private final String key;
 public UrlParser(String url) {
     try {
         URI uri = new URI(url);
         String host = uri.getHost();
         String path = uri.getPath();
+        //TODO: Сделать проверку на правильный домен ссылки: yandex.cloud и т.д.
         if (host == null || path == null) {
-            throw new URISyntaxException(url, "Invalid S3 URL");
+            throw new IncorrectURLException(url);
         }
-        // Remove the leading '/'
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
@@ -22,18 +24,12 @@ public UrlParser(String url) {
         this.bucket = splitHost[0];
         this.key = path;
     } catch (URISyntaxException e) {
-        throw new RuntimeException(e);
+        throw new IncorrectURLException(url);
     }
 }
     public String getBucket() {
         return bucket;
     }
-    public Optional<String> getKey() {
-        if(key.matches("")) {
-            return Optional.empty();
-        }
-        else {
-            return Optional.of(key);
-        }
-    }
+    public String getKey() {return key;}
 }
+

@@ -2,6 +2,7 @@ package com.denisvasilenko.BlogApp.controlers;
 
 import com.denisvasilenko.BlogApp.DTO.ArticleDto.ArticleDto;
 import com.denisvasilenko.BlogApp.DTO.ArticleDto.CreateArticleDto;
+import com.denisvasilenko.BlogApp.DTO.ArticleDto.UpdateArticleDto;
 import com.denisvasilenko.BlogApp.exceptions.AccessException;
 import com.denisvasilenko.BlogApp.exceptions.ExceptionDto;
 import com.denisvasilenko.BlogApp.exceptions.NotFoundArticleException;
@@ -35,12 +36,12 @@ public class ArticleController {
 
     @PutMapping("/newPost")
     public ResponseEntity<String> createNewPost(@RequestBody CreateArticleDto createArticleDto, Principal principal) {
-        return articleService.addArticle(principal.getName(),createArticleDto);
+        return articleService.addArticle(principal.getName(), createArticleDto);
     }
 
     @PatchMapping("/{author}/{articleName}")
-    public ResponseEntity<?> patchPost (@PathVariable String author,@PathVariable String articleName,@RequestBody String newText,Principal principal){ //TODO: Пофиксить баг с тем что текст записывается несколько раз.
-        return articleService.updateArticle(author,principal.getName(),articleName,newText);
+    public ResponseEntity<?> patchPost (@PathVariable String author, @PathVariable String articleName, @RequestBody UpdateArticleDto updateArticleDto, Principal principal){ //TODO: Пофиксить баг с тем что текст записывается несколько раз.
+        return articleService.updateArticle(author,principal.getName(),articleName,updateArticleDto);
     }
 
     @DeleteMapping("/{author}/{articleName}")

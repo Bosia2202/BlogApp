@@ -7,8 +7,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntDeleteRuntimeException;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntUpdateRuntimeException;
 import com.denisvasilenko.BlogApp.models.Article;
-import com.denisvasilenko.BlogApp.repositories.ArticleRepository;
 import com.denisvasilenko.BlogApp.yandexCloudStore.DTO.CloudUploadRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -31,16 +32,14 @@ public class YaCloudService{
         log.info("S3Client created and connected to YandexObject");
     }
 
-    public Optional<Article> uploadFile(CloudUploadRequest cloudUploadRequest) {
+    public Optional<Article> uploadText(CloudUploadRequest cloudUploadRequest) {
         try {
             byte[] articleContentBytes = cloudUploadRequest.getArticleContent().getBytes();
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(articleContentBytes.length);
-            s3Client.putObject(new PutObjectRequest(cloudUploadRequest.getBucketName(),
-                    cloudUploadRequest.getKey(), new ByteArrayInputStream(articleContentBytes), metadata));
-            log.info("Text '" + cloudUploadRequest.getKey() + "' uploaded successfully");
-            return Optional.of(cloudUploadRequestMapperWithUrlOnArticle(cloudUploadRequest,
-                    s3Client.getUrl(cloudUploadRequest.getBucketName(),cloudUploadRequest.getKey()).toString()));
+            String bucket = cloudUploadRequest.getBucketName();
+            String key = cloudUploadRequest.getKey();
+            s3Client.putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(articleContentBytes), articleContentSize(articleContentBytes)));
+            log.info("The article '" + cloudUploadRequest.getArticleName() + "' by user '" +cloudUploadRequest.getUserOwner()+ "' was uploaded in the YandexCloudStore successfully");
+            return Optional.of(cloudUploadRequestMapperWithUrlArticle(cloudUploadRequest, s3Client.getUrl(bucket,key).toString()));
         }
         catch (AmazonS3Exception amazonS3Exception) {
             if (amazonS3Exception.getErrorCode().equals("NoSuchBucket")) {
@@ -52,25 +51,28 @@ public class YaCloudService{
             return Optional.empty();
         }
         catch (NullPointerException nullPointerException) {
-            log.error("Wrong arguments in the uploadFile"+nullPointerException.getMessage());
+            log.error("Wrong arguments in the uploadText method "+nullPointerException.getMessage());
             return Optional.empty();
         }
     }
-    private Article cloudUploadRequestMapperWithUrlOnArticle(CloudUploadRequest cloudUploadRequest,String url) {
-        Article article = new Article();
-        article.setNameArticle(cloudUploadRequest.getArticleName());
-        article.setLikes(cloudUploadRequest.getLikes());
-        article.setUserOwner(cloudUploadRequest.getUserOwner());
-        article.setDateOfCreation(cloudUploadRequest.getDateOfCreation());
-        article.setUrl(url);
-        return article;
+
+    public void updateText(String url,String newArticleContent) {
+      try {
+          UrlParser urlParser = new UrlParser(url);
+          byte[] newArticleContentBytes = newArticleContent.getBytes();
+          s3Client.putObject(new PutObjectRequest(urlParser.getBucket(), urlParser.getKey(), new ByteArrayInputStream(newArticleContentBytes), articleContentSize(newArticleContentBytes)));
+      }
+      catch (AmazonS3Exception amazonS3Exception) {
+          log.error(amazonS3Exception.getMessage());
+          throw new ArticleDoesntUpdateRuntimeException(amazonS3Exception.getMessage());
+      }
     }
 
     public String getArticleText(String url){
         try {
-            UrlParser urlParser=new UrlParser(url);
+            UrlParser urlParser = new UrlParser(url);
             String bucketName = urlParser.getBucket();
-            String key=urlParser.getKey();
+            String key = urlParser.getKey();
             S3Object s3Object = s3Client.getObject(bucketName, key);
             //log.debug("Get file");
             S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
@@ -87,7 +89,7 @@ public class YaCloudService{
    public List<String> getAllArticles(String bucketName){
         ListObjectsRequest listObjects =new ListObjectsRequest().withBucketName(bucketName).withDelimiter("/").withMaxKeys(300);
         ObjectListing objectListing=s3Client.listObjects(listObjects);
-       List<String> allArticlesName = new ArrayList<>();
+        List<String> allArticlesName = new ArrayList<>();
         for (S3ObjectSummary objectSummary:objectListing.getObjectSummaries()){
             allArticlesName.add(objectSummary.getKey());
         }
@@ -96,15 +98,32 @@ public class YaCloudService{
 
     public void deleteArticle(String url) {
         try {
-            UrlParser urlParser=new UrlParser(url);
-            String bucketName=urlParser.getBucket();
-            String key=urlParser.getKey();
+            UrlParser urlParser = new UrlParser(url);
+            String bucketName = urlParser.getBucket();
+            String key = urlParser.getKey();
             s3Client.deleteObject(bucketName, key);
-          //  log.info("Article deleted:"+key);
+            log.info("Article by key: '"+key+"' deleted successfully");
         }
-        catch (AmazonS3Exception e) {
-            e.printStackTrace();
+        catch (AmazonS3Exception amazonS3Exception) {
+            log.error("Article wasn't delete");
+            throw new ArticleDoesntDeleteRuntimeException(amazonS3Exception.getMessage());
         }
+    }
+
+    private ObjectMetadata articleContentSize(byte[] articleContentBytes) {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(articleContentBytes.length);
+        return objectMetadata;
+    }
+
+    private Article cloudUploadRequestMapperWithUrlArticle(CloudUploadRequest cloudUploadRequest,String url) {
+        Article article = new Article();
+        article.setNameArticle(cloudUploadRequest.getArticleName());
+        article.setLikes(cloudUploadRequest.getLikes());
+        article.setUserOwner(cloudUploadRequest.getUserOwner());
+        article.setDateOfCreation(cloudUploadRequest.getDateOfCreation());
+        article.setUrl(url);
+        return article;
     }
 }
 
