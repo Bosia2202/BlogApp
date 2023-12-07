@@ -1,22 +1,20 @@
 package com.denisvasilenko.BlogApp.yandexCloudStore;
-import com.denisvasilenko.BlogApp.exceptions.UrlParser.IncorrectURLException;
-
+import com.denisvasilenko.BlogApp.exceptions.UrlParser.NotValidLinkRuntimeException;
+import com.denisvasilenko.BlogApp.exceptions.UrlParser.UrlHaveSpecialSymbolRuntimeException;
+import lombok.Getter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
+@Getter
 public class UrlParser {
         private final String bucket;
         private final String key;
 public UrlParser(String url) {
     try {
+        checkLinkValidation(url);
         URI uri = new URI(url);
         String host = uri.getHost();
         String path = uri.getPath();
-        //TODO: Сделать проверку на правильный домен ссылки: yandex.cloud и т.д.
-        if (host == null || path == null) {
-            throw new IncorrectURLException(url);
-        }
         if (path.startsWith("/")) {
             path = path.substring(1);
         }
@@ -24,12 +22,14 @@ public UrlParser(String url) {
         this.bucket = splitHost[0];
         this.key = path;
     } catch (URISyntaxException e) {
-        throw new IncorrectURLException(url);
+        throw new UrlHaveSpecialSymbolRuntimeException(url);
     }
 }
-    public String getBucket() {
-        return bucket;
+private void checkLinkValidation(String url) {
+    String urlRegex = "^https://.*\\.storage\\.yandexcloud\\.net/.*$";
+    if(!url.matches(urlRegex)) {
+        throw new NotValidLinkRuntimeException(url);
     }
-    public String getKey() {return key;}
+}
 }
 
