@@ -1,19 +1,18 @@
 package com.denisvasilenko.BlogApp.exceptions.Cloud;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import lombok.Getter;
 
 import java.util.Date;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
 public class ArticleDoesntCreatedRuntimeExceptions extends RuntimeException {
-    private String articleName;
-    private String message;
-    private Date timestamp;
+    private final String message;
+    private final Date timestamp;
 
-    public ArticleDoesntCreatedRuntimeExceptions(String articleName) {
-        message = "Article "+"'"+articleName+"'"+" doesn't create";
+    public ArticleDoesntCreatedRuntimeExceptions(String articleName, String message) {
+        this.message = "Article "+"'"+articleName+"'"+" doesn't create" +
+                "\n Mistake: " + message;
         this.timestamp = new Date();
     }
 }

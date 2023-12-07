@@ -2,12 +2,12 @@ package com.denisvasilenko.BlogApp.yandexCloudStore.DTO;
 
 import com.denisvasilenko.BlogApp.models.User;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 import java.sql.Date;
 
 @AllArgsConstructor
-@Data
+@Getter
 public class CloudUploadRequest {
     private String bucketName;
     private String key;

@@ -61,7 +61,7 @@ public class ArticleService {
                  userOwner,
                  getCurrentDate()
          );
-         Article article = yaCloudService.uploadText(cloudUploadRequest).orElseThrow(() -> new ArticleDoesntCreatedRuntimeExceptions(createArticleDto.articleName()));
+         Article article = yaCloudService.uploadText(cloudUploadRequest);
          articleRepository.save(article);
          log.info("Article " + createArticleDto + " by " + userName + " added in database");
          return new ResponseEntity<>(HttpStatus.CREATED);

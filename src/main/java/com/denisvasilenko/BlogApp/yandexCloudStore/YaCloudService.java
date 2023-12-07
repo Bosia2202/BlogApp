@@ -7,8 +7,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntCreatedRuntimeExceptions;
 import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntDeleteRuntimeException;
 import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntUpdateRuntimeException;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.ConvertArticleContentToStringRuntimeException;
 import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.yandexCloudStore.DTO.CloudUploadRequest;
 import lombok.extern.log4j.Log4j2;
@@ -32,28 +34,27 @@ public class YaCloudService{
         log.info("S3Client created and connected to YandexObject");
     }
 
-    public Optional<Article> uploadText(CloudUploadRequest cloudUploadRequest) {
+    public Article uploadText(CloudUploadRequest cloudUploadRequest) {
         try {
             byte[] articleContentBytes = cloudUploadRequest.getArticleContent().getBytes();
             String bucket = cloudUploadRequest.getBucketName();
             String key = cloudUploadRequest.getKey();
             s3Client.putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(articleContentBytes), articleContentSize(articleContentBytes)));
-            log.info("The article '" + cloudUploadRequest.getArticleName() + "' by user '" +cloudUploadRequest.getUserOwner()+ "' was uploaded in the YandexCloudStore successfully");
-            return Optional.of(cloudUploadRequestMapperWithUrlArticle(cloudUploadRequest, s3Client.getUrl(bucket,key).toString()));
+            log.info("The article '" + cloudUploadRequest.getArticleName() + "' by user '" +cloudUploadRequest.getUserOwner().getUsername()+ "' was uploaded in the YandexCloudStore successfully");
+            return cloudUploadRequestMapperWithUrlArticle(cloudUploadRequest, s3Client.getUrl(bucket,key).toString());
         }
-        catch (AmazonS3Exception amazonS3Exception) {
-            if (amazonS3Exception.getErrorCode().equals("NoSuchBucket")) {
-                log.error("Bucket '"+cloudUploadRequest.getBucketName()+"' doesn't exists");
-            }
-            else {
-                log.error(amazonS3Exception.getMessage());
-            }
-            return Optional.empty();
+        catch (AmazonS3Exception | NullPointerException exception) {
+            throw new ArticleDoesntCreatedRuntimeExceptions(cloudUploadRequest.getArticleName(),exception.getMessage());
         }
-        catch (NullPointerException nullPointerException) {
-            log.error("Wrong arguments in the uploadText method "+nullPointerException.getMessage());
-            return Optional.empty();
-        }
+    }
+
+
+    public String getArticleText(String url) {
+        UrlParser urlParser = new UrlParser();
+        urlParser.parseUrl(url);
+        String bucket = urlParser.getBucket();
+        String key = urlParser.getKey();
+        return getTextToString(bucket,key);
     }
 
     public void updateText(String url,String newArticleContent) {
@@ -68,35 +69,6 @@ public class YaCloudService{
           throw new ArticleDoesntUpdateRuntimeException(amazonS3Exception.getMessage());
       }
     }
-
-    public String getArticleText(String url){
-        try {
-            UrlParser urlParser = new UrlParser();
-            urlParser.parseUrl(url);
-            String bucketName = urlParser.getBucket();
-            String key = urlParser.getKey();
-            S3Object s3Object = s3Client.getObject(bucketName, key);
-            //log.debug("Get file");
-            S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
-            String ObjContent = IOUtils.toString(s3ObjectInputStream);
-            //log.info("Article "+key+" content got and return");
-            return ObjContent;
-        }
-        catch (IOException e){
-            //log.error("Failed to convert to String" +e);
-            return null;
-        }
-    }
-
-   public List<String> getAllArticles(String bucketName) { //TODO:что делать с этим методом
-        ListObjectsRequest listObjects =new ListObjectsRequest().withBucketName(bucketName).withDelimiter("/").withMaxKeys(300);
-        ObjectListing objectListing=s3Client.listObjects(listObjects);
-        List<String> allArticlesName = new ArrayList<>();
-        for (S3ObjectSummary objectSummary:objectListing.getObjectSummaries()){
-            allArticlesName.add(objectSummary.getKey());
-        }
-        return allArticlesName;
-   }
 
     public void deleteArticle(String url) {
         try {
@@ -127,6 +99,16 @@ public class YaCloudService{
         article.setDateOfCreation(cloudUploadRequest.getDateOfCreation());
         article.setUrl(url);
         return article;
+    }
+
+    private String getTextToString(String bucketName, String key) {
+        try {
+            S3Object s3Object = s3Client.getObject(bucketName, key);
+            S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
+            return IOUtils.toString(s3ObjectInputStream);
+        } catch (IOException ioException) {
+            throw new ConvertArticleContentToStringRuntimeException(ioException.getMessage());
+        }
     }
 }
 
