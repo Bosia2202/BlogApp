@@ -88,7 +88,7 @@ public class YaCloudService{
         }
     }
 
-   public List<String> getAllArticles(String bucketName){
+   public List<String> getAllArticles(String bucketName) { //TODO: решить что делать с этим методом
         ListObjectsRequest listObjects =new ListObjectsRequest().withBucketName(bucketName).withDelimiter("/").withMaxKeys(300);
         ObjectListing objectListing=s3Client.listObjects(listObjects);
         List<String> allArticlesName = new ArrayList<>();
