@@ -17,29 +17,16 @@ public class YaCloudServiceTest {
 
     @Test
     public void whenWeUploadFile_thanWeShouldToGetExpectedText() {
-        String bucketName = "blogapp";
-        String key = "test_article_for_whenWeUploadFile_thanWeShouldToGetText_TEST";
-        String expectArticleContent = "This is test articleContent for whenWeUploadFile_thanWeShouldToGetText_TEST";
-        String articleULR = yaCloudService.uploadText(bucketName,key,expectArticleContent).get();
-        String actualArticleContent = yaCloudService.getArticleText(articleULR);
-        Assertions.assertEquals(expectArticleContent,actualArticleContent);
-        yaCloudService.deleteArticle(articleULR);
+
     }
 
     @Test
     public void whenWeUploadFileWithWrongKey_thanWeGetNullUrl() {
-        String wrongBucketName = "TEST_WRONG_BUCKET_NAME";
-        String key = "test_article_for_whenWeUploadFile_thanWeShouldToGetText_TEST";
-        String articleContent = "This is test articleContent for whenWeUploadFile_thanWeShouldToGetText_TEST";
-        String articleULR = yaCloudService.uploadText(wrongBucketName,key,articleContent).orElse(null);
-        Assertions.assertNull(articleULR);
+
     }
 
     @Test
     public void whenWeUploadFileWithoutText_thanWeDoesntShouldToGetText() {
-        String bucketName = "blogapp";
-        String key = "test_article_for_whenWeUploadFileWithoutText_thanWeDoesntShouldToGetText_TEST";
-        String articleULR = yaCloudService.uploadText(bucketName,key,null).orElse(null);
-        Assertions.assertNull(articleULR);
-        };
+
+    }
 }

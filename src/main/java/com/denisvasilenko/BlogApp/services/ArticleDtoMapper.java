@@ -22,6 +22,6 @@ public class ArticleDtoMapper {
     }
     private Optional<String> getTextFromYandexCloud2(String url) {
         YaCloudService yaCloudService = new YaCloudService();
-        return yaCloudService.getArticleText(url);
+        return Optional.of(yaCloudService.getArticleText(url));
     }
 }

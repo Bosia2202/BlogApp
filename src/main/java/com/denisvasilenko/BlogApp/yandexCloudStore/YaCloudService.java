@@ -58,7 +58,8 @@ public class YaCloudService{
 
     public void updateText(String url,String newArticleContent) {
       try {
-          UrlParser urlParser = new UrlParser(url);
+          UrlParser urlParser = new UrlParser();
+          urlParser.parseUrl(url);
           byte[] newArticleContentBytes = newArticleContent.getBytes();
           s3Client.putObject(new PutObjectRequest(urlParser.getBucket(), urlParser.getKey(), new ByteArrayInputStream(newArticleContentBytes), articleContentSize(newArticleContentBytes)));
       }
@@ -70,7 +71,8 @@ public class YaCloudService{
 
     public String getArticleText(String url){
         try {
-            UrlParser urlParser = new UrlParser(url);
+            UrlParser urlParser = new UrlParser();
+            urlParser.parseUrl(url);
             String bucketName = urlParser.getBucket();
             String key = urlParser.getKey();
             S3Object s3Object = s3Client.getObject(bucketName, key);
@@ -98,7 +100,8 @@ public class YaCloudService{
 
     public void deleteArticle(String url) {
         try {
-            UrlParser urlParser = new UrlParser(url);
+            UrlParser urlParser = new UrlParser();
+            urlParser.parseUrl(url);
             String bucketName = urlParser.getBucket();
             String key = urlParser.getKey();
             s3Client.deleteObject(bucketName, key);
