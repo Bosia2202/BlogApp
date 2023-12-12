@@ -27,7 +27,7 @@ public void parseUrl(String url) {
 }
 private void checkLinkValidation(String url) {
     String urlRegex = "^https://.*\\.storage\\.yandexcloud\\.net/.*$";
-    if(!url.matches(urlRegex)) {
+    if(url==null||!url.matches(urlRegex)) {
         throw new NotValidLinkRuntimeException(url);
     }
 }

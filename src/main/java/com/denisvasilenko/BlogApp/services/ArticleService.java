@@ -4,8 +4,6 @@ import com.denisvasilenko.BlogApp.DTO.ArticleDto.ArticleDto;
 import com.denisvasilenko.BlogApp.DTO.ArticleDto.CreateArticleDto;
 import com.denisvasilenko.BlogApp.DTO.ArticleDto.UpdateArticleDto;
 import com.denisvasilenko.BlogApp.exceptions.AccessException;
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntCreatedRuntimeExceptions;
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntUpdateRuntimeException;
 import com.denisvasilenko.BlogApp.exceptions.NotFoundArticleException;
 import com.denisvasilenko.BlogApp.exceptions.NotFoundUserException;
 import com.denisvasilenko.BlogApp.models.Article;

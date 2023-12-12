@@ -14,12 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class UrlParserTest {
 
     @Test
-    public void whenPassNullArgumentInsteadOfUrl_thenGetNullPointerException() {
-        UrlParser urlParser = new UrlParser();
-        Assertions.assertThrows(NullPointerException.class,()->urlParser.parseUrl(null));
-    }
-
-    @Test
     public void whenPassCorrectUrl_thenGetBucketAndKey() {
         String correctUrl = "https://blogapp.storage.yandexcloud.net/b776b1ca-0e55-4b93-bc93-c6db81bb6436PosterTestArticle";
         String expectedBucket = "blogapp";
@@ -65,5 +59,11 @@ public class UrlParserTest {
         String UrlWithSpecialSymbolsInTheKey = "https://blogapp.storage.yandexcloud.net/b776b1ca-0e^55-4b9№3-bc93-c6db81bb6436PosterTestArticle";
         UrlParser urlParser = new UrlParser();
         Assertions.assertThrows(UrlHaveSpecialSymbolRuntimeException.class,()->urlParser.parseUrl(UrlWithSpecialSymbolsInTheKey));
+    }
+
+    @Test
+    public void whenPassNullToUrlArgument_thanShouldGetNotValidLinkRuntimeException() {
+        UrlParser urlParser = new UrlParser();
+        Assertions.assertThrows(NotValidLinkRuntimeException.class,()->urlParser.parseUrl(null));
     }
 }

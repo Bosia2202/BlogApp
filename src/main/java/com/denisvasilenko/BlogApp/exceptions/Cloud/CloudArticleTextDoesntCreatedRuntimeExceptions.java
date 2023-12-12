@@ -1,16 +1,17 @@
 package com.denisvasilenko.BlogApp.exceptions.Cloud;
 
+
 import lombok.Getter;
 
 import java.util.Date;
 
 @Getter
-public class ArticleDoesntCanReadRuntimeException extends RuntimeException{
+public class CloudArticleTextDoesntCreatedRuntimeExceptions extends RuntimeException {
     private final String message;
     private final Date timestamp;
 
-    public ArticleDoesntCanReadRuntimeException(String message) {
-        this.message = "Article doesn't can read!" +
+    public CloudArticleTextDoesntCreatedRuntimeExceptions(String articleName, String message) {
+        this.message = "Article "+"'"+articleName+"'"+" doesn't create" +
                 "\n Mistake: " + message;
         this.timestamp = new Date();
     }

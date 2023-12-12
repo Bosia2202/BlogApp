@@ -14,9 +14,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Log4j2
@@ -41,7 +38,7 @@ public class YaCloudService{
             return cloudUploadRequestMapperWithUrlArticle(cloudUploadRequest, s3Client.getUrl(bucket,key).toString());
         }
         catch (AmazonS3Exception | NullPointerException exception) {
-            throw new ArticleDoesntCreatedRuntimeExceptions(cloudUploadRequest.getArticleName(),exception.getMessage());
+            throw new CloudArticleTextDoesntCreatedRuntimeExceptions(cloudUploadRequest.getArticleName(),exception.getMessage());
         }
     }
 
@@ -63,7 +60,7 @@ public class YaCloudService{
       }
       catch (AmazonS3Exception | NullPointerException exception) {
           log.error(exception.getMessage());
-          throw new ArticleDoesntUpdateRuntimeException(exception.getMessage());
+          throw new CloudArticleTextDoesntUpdateRuntimeException(exception.getMessage());
       }
     }
 
@@ -78,7 +75,7 @@ public class YaCloudService{
         }
         catch (AmazonS3Exception | NullPointerException exception) {
             log.error("Article wasn't delete");
-            throw new ArticleDoesntDeleteRuntimeException(exception.getMessage());
+            throw new CloudArticleTextDoesntDeleteRuntimeException(exception.getMessage());
         }
     }
 
@@ -104,9 +101,9 @@ public class YaCloudService{
             S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent();
             return IOUtils.toString(s3ObjectInputStream);
         } catch (IOException ioException) {
-            throw new ConvertArticleContentToStringRuntimeException(ioException.getMessage());
+            throw new CloudConvertArticleTextContentToStringRuntimeException(ioException.getMessage());
         } catch (AmazonS3Exception amazonS3Exception) {
-            throw new ArticleDoesntCanReadRuntimeException(amazonS3Exception.getMessage());
+            throw new CloudArticleTextDoesntCanReadRuntimeException(amazonS3Exception.getMessage());
         }
     }
 }

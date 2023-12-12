@@ -1,8 +1,9 @@
 package com.denisvasilenko.BlogApp.Cloud;
 
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntCanReadRuntimeException;
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntCreatedRuntimeExceptions;
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntUpdateRuntimeException;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.CloudArticleTextDoesntCanReadRuntimeException;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.CloudArticleTextDoesntCreatedRuntimeExceptions;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.CloudArticleTextDoesntUpdateRuntimeException;
+import com.denisvasilenko.BlogApp.exceptions.UrlParser.NotValidLinkRuntimeException;
 import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.models.User;
 import com.denisvasilenko.BlogApp.yandexCloudStore.DTO.CloudUploadRequest;
@@ -66,7 +67,7 @@ public class YaCloudServiceTest {
         User user = new User();
         Date date = new Date(System.currentTimeMillis());
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,null,user,date);
-        Assertions.assertThrows(ArticleDoesntCreatedRuntimeExceptions.class,()->yaCloudService.uploadText(cloudUploadRequest));
+        Assertions.assertThrows(CloudArticleTextDoesntCreatedRuntimeExceptions.class,()->yaCloudService.uploadText(cloudUploadRequest));
     }
 
     @Test
@@ -78,19 +79,19 @@ public class YaCloudServiceTest {
         User user = new User();
         Date date = new Date(System.currentTimeMillis());
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,articleText,user,date);
-        Assertions.assertThrows(ArticleDoesntCreatedRuntimeExceptions.class,()->yaCloudService.uploadText(cloudUploadRequest));
+        Assertions.assertThrows(CloudArticleTextDoesntCreatedRuntimeExceptions.class,()->yaCloudService.uploadText(cloudUploadRequest));
     }
 
     @Test
     public void whenPassInTheMethodGetArticleUrlWithDoesntExistArticle_thanGetException() {
         String urlToDoesntExistArticle = "https://blogapp.storage.yandexcloud.net/TestingKey";
-        Assertions.assertThrows(ArticleDoesntCanReadRuntimeException.class,()-> yaCloudService.getArticleText(urlToDoesntExistArticle));
+        Assertions.assertThrows(CloudArticleTextDoesntCanReadRuntimeException.class,()-> yaCloudService.getArticleText(urlToDoesntExistArticle));
     }
 
     @Test
     public void whenPassUrlToDontExistArticleInTheUpdateTextMethod_thanGetArticleDoesntUpdateRuntimeException() {
      String urlToDoesntExistArticle = "https://blogapp.storage.yandexcloud.net/TestingKey";
-     Assertions.assertThrows(ArticleDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(urlToDoesntExistArticle,"Test Text"));
+     Assertions.assertThrows(CloudArticleTextDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(urlToDoesntExistArticle,"Test Text"));
     }
 
     @Test
@@ -103,7 +104,7 @@ public class YaCloudServiceTest {
         Date date = new Date(System.currentTimeMillis());
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,expectedText,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
-        Assertions.assertThrows(ArticleDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(article.getUrl(),null));
+        Assertions.assertThrows(CloudArticleTextDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(article.getUrl(),null));
         yaCloudService.deleteArticle(article.getUrl());
     }
 
@@ -117,7 +118,7 @@ public class YaCloudServiceTest {
         Date date = new Date(System.currentTimeMillis());
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,text,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
-        Assertions.assertThrows(ArticleDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(null,text));
+        Assertions.assertThrows(CloudArticleTextDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(null,text));
         yaCloudService.deleteArticle(article.getUrl());
     }
 
@@ -143,12 +144,16 @@ public class YaCloudServiceTest {
         String key = "TestingKey";
         String articleName = "TestingArticleName";
         String oldText = "TestArticleContent";
-        String expectedText = "This is update text";
         User user = new User();
         Date date = new Date(System.currentTimeMillis());
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,oldText,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
         yaCloudService.deleteArticle(article.getUrl());
-        Assertions(ArticleDoesntCanReadRuntimeException.class,()->yaCloudService.getArticleText(article.getUrl());
+        Assertions.assertThrows(CloudArticleTextDoesntCanReadRuntimeException.class,()->yaCloudService.getArticleText(article.getUrl()));
+    }
+
+    @Test
+    public void whenDeleteArticleWithNullUrl_thanShouldGetNotValidLinkRuntimeException() {
+        Assertions.assertThrows(NotValidLinkRuntimeException.class,()->yaCloudService.deleteArticle(null));
     }
 }
