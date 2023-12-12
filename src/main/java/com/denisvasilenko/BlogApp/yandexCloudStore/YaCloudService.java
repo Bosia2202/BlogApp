@@ -7,10 +7,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntCreatedRuntimeExceptions;
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntDeleteRuntimeException;
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntUpdateRuntimeException;
-import com.denisvasilenko.BlogApp.exceptions.Cloud.ConvertArticleContentToStringRuntimeException;
+import com.denisvasilenko.BlogApp.exceptions.Cloud.*;
 import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.yandexCloudStore.DTO.CloudUploadRequest;
 import lombok.extern.log4j.Log4j2;
@@ -79,9 +76,9 @@ public class YaCloudService{
             s3Client.deleteObject(bucketName, key);
             log.info("Article by key: '"+key+"' deleted successfully");
         }
-        catch (AmazonS3Exception amazonS3Exception) {
+        catch (AmazonS3Exception | NullPointerException exception) {
             log.error("Article wasn't delete");
-            throw new ArticleDoesntDeleteRuntimeException(amazonS3Exception.getMessage());
+            throw new ArticleDoesntDeleteRuntimeException(exception.getMessage());
         }
     }
 

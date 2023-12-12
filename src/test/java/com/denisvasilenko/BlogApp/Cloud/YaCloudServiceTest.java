@@ -1,5 +1,6 @@
 package com.denisvasilenko.BlogApp.Cloud;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.denisvasilenko.BlogApp.exceptions.Cloud.ArticleDoesntCreatedRuntimeExceptions;
 import com.denisvasilenko.BlogApp.models.Article;
 import com.denisvasilenko.BlogApp.models.User;
@@ -22,7 +23,7 @@ public class YaCloudServiceTest {
     private YaCloudService yaCloudService;
 
     @Test
-    public void whenUploadFile_thanShouldToGetExpectedText() {
+    public void whenUploadFileAndGetText_thanShouldToGetExpectedText() {
         String bucket = "blogapp";
         String key = "TestingKey";
         String articleName = "TestingArticleName";
@@ -78,4 +79,11 @@ public class YaCloudServiceTest {
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,articleText,user,date);
         Assertions.assertThrows(ArticleDoesntCreatedRuntimeExceptions.class,()->yaCloudService.uploadText(cloudUploadRequest));
     }
+
+    @Test
+    public void whenPassInTheMethodGetArticleUrlWithDoesntExistArticle_thanGetException() {
+        String urlToDoesntExistArticle = "https://blogapp.storage.yandexcloud.net/TestingKey";
+        Assertions.assertThrows(AmazonS3Exception.class,()-> yaCloudService.getArticleText(urlToDoesntExistArticle));
+    }
+
 }
