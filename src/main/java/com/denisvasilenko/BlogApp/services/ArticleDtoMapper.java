@@ -9,19 +9,14 @@ import java.util.Optional;
 public class ArticleDtoMapper {
 
     public  ArticleDto getTextFromYandexCloud(Article article){
-        Optional<String> text = getTextFromYandexCloud2(article.getUrl());
-        if(text.isEmpty()){
-            return null;
-        }
+        YaCloudService yaCloudService = new YaCloudService();
+       String articleText = yaCloudService.getArticleText(article.getUrl());
+
         return new ArticleDto(
                 article.getNameArticle(),
-                text.get(),
+                articleText,
                 article.getLikes(),
                 article.getDateOfCreation(),
                 article.getUserOwner().getUsername());
-    }
-    private Optional<String> getTextFromYandexCloud2(String url) {
-        YaCloudService yaCloudService = new YaCloudService();
-        return Optional.of(yaCloudService.getArticleText(url));
     }
 }
