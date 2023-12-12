@@ -5,12 +5,12 @@ import lombok.Getter;
 import java.util.Date;
 
 @Getter
-public class ArticleDoesntCanReadRuntimeException {
+public class ArticleDoesntCanReadRuntimeException extends RuntimeException{
     private final String message;
     private final Date timestamp;
 
-    public ArticleDoesntCanReadRuntimeException(String articleName, String message) {
-        this.message = "Article "+"'"+articleName+"'"+" doesn't can read!" +
+    public ArticleDoesntCanReadRuntimeException(String message) {
+        this.message = "Article doesn't can read!" +
                 "\n Mistake: " + message;
         this.timestamp = new Date();
     }

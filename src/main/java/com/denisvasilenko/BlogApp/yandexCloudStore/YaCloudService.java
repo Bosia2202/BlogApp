@@ -61,9 +61,9 @@ public class YaCloudService{
           byte[] newArticleContentBytes = newArticleContent.getBytes();
           s3Client.putObject(new PutObjectRequest(urlParser.getBucket(), urlParser.getKey(), new ByteArrayInputStream(newArticleContentBytes), articleContentSize(newArticleContentBytes)));
       }
-      catch (AmazonS3Exception amazonS3Exception) {
-          log.error(amazonS3Exception.getMessage());
-          throw new ArticleDoesntUpdateRuntimeException(amazonS3Exception.getMessage());
+      catch (AmazonS3Exception | NullPointerException exception) {
+          log.error(exception.getMessage());
+          throw new ArticleDoesntUpdateRuntimeException(exception.getMessage());
       }
     }
 
@@ -105,6 +105,8 @@ public class YaCloudService{
             return IOUtils.toString(s3ObjectInputStream);
         } catch (IOException ioException) {
             throw new ConvertArticleContentToStringRuntimeException(ioException.getMessage());
+        } catch (AmazonS3Exception amazonS3Exception) {
+            throw new ArticleDoesntCanReadRuntimeException(amazonS3Exception.getMessage());
         }
     }
 }
