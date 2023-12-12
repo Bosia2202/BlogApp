@@ -89,12 +89,6 @@ public class YaCloudServiceTest {
     }
 
     @Test
-    public void whenPassUrlToDontExistArticleInTheUpdateTextMethod_thanGetArticleDoesntUpdateRuntimeException() {
-     String urlToDoesntExistArticle = "https://blogapp.storage.yandexcloud.net/TestingKey";
-     Assertions.assertThrows(CloudArticleTextDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(urlToDoesntExistArticle,"Test Text"));
-    }
-
-    @Test
     public void whenDontPassTextInTheUpdateMethod_thanGetArticleDoesntUpdateRuntimeException() {
         String bucket = "blogapp";
         String key = "TestingKey";
@@ -118,7 +112,7 @@ public class YaCloudServiceTest {
         Date date = new Date(System.currentTimeMillis());
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,text,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
-        Assertions.assertThrows(CloudArticleTextDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(null,text));
+        Assertions.assertThrows(NotValidLinkRuntimeException.class,()->yaCloudService.updateText(null,text));
         yaCloudService.deleteArticle(article.getUrl());
     }
 

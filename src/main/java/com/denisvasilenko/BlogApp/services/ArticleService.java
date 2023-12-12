@@ -38,7 +38,7 @@ public class ArticleService {
         this.yaCloudService = yaCloudService;
     }
 
-    public ArticleDto showArticle(String username, String articleName) {
+    public ArticleDto showArticle(@NotNull String username,@NotNull String articleName) {
             Article article = checkArticleByUser(username, articleName).orElseThrow(()->new NotFoundArticleException(articleName));
             ArticleDtoMapper articleDtoMapper = new ArticleDtoMapper();
             return articleDtoMapper.getTextFromYandexCloud(article);
@@ -90,7 +90,7 @@ public class ArticleService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private Optional<Article> checkArticleByUser(String username, String articleName) {
+    private Optional<Article> checkArticleByUser(@NotNull String username,@NotNull String articleName) {
         User user = profileServices.findUserByUserName(username)
                 .orElseThrow(() -> new NotFoundUserException(username));
         List<Article> articlesByUser = user.getArticles();
