@@ -37,8 +37,10 @@ public class YaCloudService{
             log.info("The article '" + cloudUploadRequest.getArticleName() + "' by user '" +cloudUploadRequest.getUserOwner().getUsername()+ "' was uploaded in the YandexCloudStore successfully");
             return cloudUploadRequestMapperWithUrlArticle(cloudUploadRequest, s3Client.getUrl(bucket,key).toString());
         }
-        catch (AmazonS3Exception | NullPointerException exception) {
-            throw new CloudArticleTextDoesntCreatedRuntimeExceptions(cloudUploadRequest.getArticleName(),exception.getMessage());
+        catch (AmazonS3Exception amazonS3Exception) {
+            throw new CloudArticleTextDoesntCreatedRuntimeExceptions(cloudUploadRequest.getArticleName(),amazonS3Exception.getMessage());
+        } catch (NullPointerException nullPointerException) {
+            throw new CloudArticleTextDoesntCreatedRuntimeExceptions(cloudUploadRequest.getArticleName(),"CloudUploadRequest is wrong");
         }
     }
 

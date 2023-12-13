@@ -15,5 +15,5 @@ public class CloudUploadRequest {
     private String articleContent;
     private User userOwner;
     private Date DateOfCreation;
-    private final int likes=0;
+    private final int likes = 0;
 }
