@@ -6,7 +6,7 @@ import com.denisvasilenko.BlogApp.DTO.RegistrationDto.UserRegistrationRequest;
 import com.denisvasilenko.BlogApp.DTO.RegistrationDto.UserRegistrationResponse;
 import com.denisvasilenko.BlogApp.exceptions.AppError;
 import com.denisvasilenko.BlogApp.models.User;
-import com.denisvasilenko.BlogApp.utills.JwtTokenUtills;
+import com.denisvasilenko.BlogApp.utills.JwtTokenUtill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Service
 public class AuthService {
     private final ProfileServices profileServices;
-    private final JwtTokenUtills jwtTokenUtills;
+    private final JwtTokenUtill jwtTokenUtill;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public AuthService(ProfileServices profileServices, JwtTokenUtills jwtTokenUtills, AuthenticationManager authenticationManager) {
+    public AuthService(ProfileServices profileServices, JwtTokenUtill jwtTokenUtill, AuthenticationManager authenticationManager) {
         this.profileServices = profileServices;
-        this.jwtTokenUtills = jwtTokenUtills;
+        this.jwtTokenUtill = jwtTokenUtill;
         this.authenticationManager = authenticationManager;
     }
 
@@ -38,7 +38,7 @@ public class AuthService {
             return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(),"Uncorrected login or password"),HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails=profileServices.loadUserByUsername(authRequest.getUsername());
-        String token=jwtTokenUtills.generateToken(userDetails);
+        String token= jwtTokenUtill.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }
 

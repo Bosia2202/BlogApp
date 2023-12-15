@@ -1,6 +1,6 @@
 package com.denisvasilenko.BlogApp.config;
 
-import com.denisvasilenko.BlogApp.utills.JwtTokenUtills;
+import com.denisvasilenko.BlogApp.utills.JwtTokenUtill;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
-    private final JwtTokenUtills jwtTokenUtills;
+    private final JwtTokenUtill jwtTokenUtill;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -31,7 +31,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             try {
-                username = jwtTokenUtills.getUsername(jwt);
+                username = jwtTokenUtill.getUsername(jwt);
             } catch (ExpiredJwtException e) {
                 log.debug("Token is timeout");
             } catch (SignatureException e) {
@@ -42,7 +42,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                     username,
                     null,
-                    jwtTokenUtills.getRoles(jwt).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
+                    jwtTokenUtill.getRoles(jwt).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
             );
             SecurityContextHolder.getContext().setAuthentication(token);
         }

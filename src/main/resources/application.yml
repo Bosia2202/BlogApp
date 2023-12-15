@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/blogapp
+    username: root
+    password: Bosia2202+-
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwtTokenConfiguration:
+  secretKey: 5ec1854e91f8a908e2e33cdef2e7e1d92881641cfcb4e4c291b16c26a628214c
+  jwtLifeTime: 12h
