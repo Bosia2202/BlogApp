@@ -4,7 +4,8 @@ import com.denisvasilenko.blogapp.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Getter
@@ -14,6 +15,6 @@ public class CloudUploadRequest {
     private String articleName;
     private String articleContent;
     private User userOwner;
-    private Date DateOfCreation;
+    private LocalDate dateOfCreation;
     private final int likes = 0;
 }

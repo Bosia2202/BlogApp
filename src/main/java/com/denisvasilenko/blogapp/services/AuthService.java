@@ -37,7 +37,7 @@ public class AuthService {
         catch (BadCredentialsException e){
             return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(),"Uncorrected login or password"),HttpStatus.UNAUTHORIZED);
         }
-        UserDetails userDetails=profileServices.loadUserByUsername(authRequest.getUsername());
+        UserDetails userDetails = profileServices.loadUserByUsername(authRequest.getUsername());
         String token= jwtTokenUtill.generateToken(userDetails);
         return ResponseEntity.ok(new JwtResponse(token));
     }

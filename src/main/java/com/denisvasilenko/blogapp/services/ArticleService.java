@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,7 +57,7 @@ public class ArticleService {
                  createArticleDto.articleName(),
                  createArticleDto.articleContent(),
                  userOwner,
-                 getCurrentDate()
+                 LocalDate.now()
          );
          Article article = yaCloudService.uploadText(cloudUploadRequest);
          articleRepository.save(article);
@@ -103,8 +103,4 @@ public class ArticleService {
         }
     }
 
-    private Date getCurrentDate() {
-        long mills = System.currentTimeMillis();
-        return new Date(mills);
-    }
 }

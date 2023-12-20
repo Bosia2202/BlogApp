@@ -6,7 +6,7 @@ import com.denisvasilenko.blogapp.yandexCloudStore.YaCloudService;
 
 public class ArticleDtoMapper {
 
-    public  ArticleDto getTextFromYandexCloud(Article article){
+    public ArticleDto getTextFromYandexCloud(Article article){
         YaCloudService yaCloudService = new YaCloudService();
        String articleText = yaCloudService.getArticleText(article.getUrl());
 

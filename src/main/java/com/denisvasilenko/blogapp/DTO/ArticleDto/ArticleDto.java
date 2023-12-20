@@ -1,11 +1,11 @@
 package com.denisvasilenko.blogapp.DTO.ArticleDto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public record ArticleDto(
         String nameArticle,
         String text,
         int likes,
-        Date dateOfCreation,
+        LocalDate dateOfCreation,
         String Author) {
 }

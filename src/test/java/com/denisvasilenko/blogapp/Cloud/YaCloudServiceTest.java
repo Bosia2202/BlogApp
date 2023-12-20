@@ -13,9 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cglib.core.Local;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -31,7 +35,7 @@ public class YaCloudServiceTest {
         String articleName = "TestingArticleName";
         String expectedText = "TestArticleContent";
         User user = new User();
-        Date date = new Date(System.currentTimeMillis());
+        LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,expectedText,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
         String actualText = yaCloudService.getArticleText(article.getUrl());
@@ -46,7 +50,7 @@ public class YaCloudServiceTest {
         String articleName = "TestingArticleName";
         String articleText = "TestArticleContent";
         User user = new User();
-        Date date = new Date(System.currentTimeMillis());
+        LocalDate date = LocalDate.now();
         Article expectedArticle = new Article();
         expectedArticle.setNameArticle(articleName);
         expectedArticle.setUserOwner(user);
@@ -65,7 +69,7 @@ public class YaCloudServiceTest {
         String key = "TestingKey";
         String articleName = "TestingArticleName";
         User user = new User();
-        Date date = new Date(System.currentTimeMillis());
+        LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,null,user,date);
         Assertions.assertThrows(CloudArticleTextDoesntCreatedRuntimeExceptions.class,()->yaCloudService.uploadText(cloudUploadRequest));
     }
@@ -77,15 +81,15 @@ public class YaCloudServiceTest {
         String articleName = "TestingArticleName";
         String articleText = "TestArticleContent";
         User user = new User();
-        Date date = new Date(System.currentTimeMillis());
+        LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,articleText,user,date);
         Assertions.assertThrows(CloudArticleTextDoesntCreatedRuntimeExceptions.class,()->yaCloudService.uploadText(cloudUploadRequest));
     }
 
     @Test
     public void whenPassInTheMethodGetArticleUrlWithDoesntExistArticle_thanGetException() {
-        String urlToDoesntExistArticle = "https://blogapp.storage.yandexcloud.net/TestingKey";
-        Assertions.assertThrows(CloudArticleTextDoesntCanReadRuntimeException.class,()-> yaCloudService.getArticleText(urlToDoesntExistArticle));
+        String urlToDoesNotExistArticle = "https://blogapp.storage.yandexcloud.net/TestingKey";
+        Assertions.assertThrows(CloudArticleTextDoesntCanReadRuntimeException.class,()-> yaCloudService.getArticleText(urlToDoesNotExistArticle));
     }
 
     @Test
@@ -95,7 +99,7 @@ public class YaCloudServiceTest {
         String articleName = "TestingArticleName";
         String expectedText = "TestArticleContent";
         User user = new User();
-        Date date = new Date(System.currentTimeMillis());
+        LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,expectedText,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
         Assertions.assertThrows(CloudArticleTextDoesntUpdateRuntimeException.class,()->yaCloudService.updateText(article.getUrl(),null));
@@ -109,7 +113,7 @@ public class YaCloudServiceTest {
         String articleName = "TestingArticleName";
         String text = "TestArticleContent";
         User user = new User();
-        Date date = new Date(System.currentTimeMillis());
+        LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,text,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
         Assertions.assertThrows(NotValidLinkRuntimeException.class,()->yaCloudService.updateText(null,text));
@@ -124,7 +128,7 @@ public class YaCloudServiceTest {
         String oldText = "TestArticleContent";
         String expectedText = "This is update text";
         User user = new User();
-        Date date = new Date(System.currentTimeMillis());
+        LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,oldText,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
         yaCloudService.updateText(article.getUrl(),expectedText);
@@ -139,7 +143,7 @@ public class YaCloudServiceTest {
         String articleName = "TestingArticleName";
         String oldText = "TestArticleContent";
         User user = new User();
-        Date date = new Date(System.currentTimeMillis());
+        LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket,key,articleName,oldText,user,date);
         Article article = yaCloudService.uploadText(cloudUploadRequest);
         yaCloudService.deleteArticle(article.getUrl());
