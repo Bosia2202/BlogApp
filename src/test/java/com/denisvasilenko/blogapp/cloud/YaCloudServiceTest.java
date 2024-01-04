@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.Cloud;
+package com.denisvasilenko.blogapp.cloud;
 
 import com.denisvasilenko.blogapp.exceptions.Cloud.CloudArticleTextDoesntCanReadRuntimeException;
 import com.denisvasilenko.blogapp.exceptions.Cloud.CloudArticleTextDoesntCreatedRuntimeExceptions;
@@ -13,13 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cglib.core.Local;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest

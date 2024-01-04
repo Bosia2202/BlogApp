@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.Cloud;
+package com.denisvasilenko.blogapp.cloud;
 
 import com.denisvasilenko.blogapp.exceptions.UrlParser.NotValidLinkRuntimeException;
 import com.denisvasilenko.blogapp.exceptions.UrlParser.UrlHaveSpecialSymbolRuntimeException;

@@ -1,9 +1,12 @@
 package com.denisvasilenko.blogapp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Collection;
 
 @Entity
 @Data
@@ -15,7 +18,6 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Integer id;
-    @Column(name = "name")
+    @Column(name = "name",unique = true)
     private String name;
-
 }

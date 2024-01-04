@@ -1,7 +1,7 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/blogapp
-    username: root
+    url: jdbc:postgresql://localhost:5432/ActualDataBase
+    username: postgres
     password: Bosia2202+-
   jpa:
     hibernate:

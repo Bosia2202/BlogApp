@@ -1,9 +1,7 @@
-package com.denisvasilenko.blogapp.Services;
+package com.denisvasilenko.blogapp.services;
 
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.repositories.ArticleRepository;
-import com.denisvasilenko.blogapp.services.ArticleService;
-import com.denisvasilenko.blogapp.services.ProfileServices;
 import com.denisvasilenko.blogapp.yandexCloudStore.YaCloudService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

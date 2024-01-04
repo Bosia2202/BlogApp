@@ -1,6 +1,7 @@
-package com.denisvasilenko.blogapp;
+package com.denisvasilenko.blogapp.repositories;
 
 import com.denisvasilenko.blogapp.models.Article;
+import com.denisvasilenko.blogapp.models.Role;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.repositories.ArticleRepository;
 import com.denisvasilenko.blogapp.repositories.UserRepository;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

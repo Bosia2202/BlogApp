@@ -46,6 +46,10 @@ public class Article {
         return Objects.hash(id, nameArticle, url, dateOfCreation, likes, userOwner);
     }
 
+    public long getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
         return "Article {" +

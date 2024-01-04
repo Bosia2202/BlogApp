@@ -49,8 +49,8 @@ public class ProfileServices implements UserDetailsService {
       user.setId(id);
       return userRepository.save(user);
     }
-    public void deleteUser(Long id){
-        userRepository.deleteById(id);
+    public void deleteUser(User user) {
+       userRepository.deleteById(user.getId());
     }
 
     public List<User> getAllUsers(){
@@ -86,7 +86,7 @@ public class ProfileServices implements UserDetailsService {
         }
     }
     public List<ArticleDto> getAllArticlesByUser(User user){
-        ArticleDtoMapper articleDtoMapper =new ArticleDtoMapper();
+        ArticleDtoMapper articleDtoMapper = new ArticleDtoMapper();
         return user.getArticles().stream().map(articleDtoMapper::getTextFromYandexCloud)
                 .collect(Collectors.toList());
     }
