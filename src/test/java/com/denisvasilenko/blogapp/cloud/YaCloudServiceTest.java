@@ -1,9 +1,9 @@
 package com.denisvasilenko.blogapp.cloud;
 
-import com.denisvasilenko.blogapp.exceptions.Cloud.CloudArticleTextDoesntCanReadRuntimeException;
-import com.denisvasilenko.blogapp.exceptions.Cloud.CloudArticleTextDoesntCreatedRuntimeExceptions;
-import com.denisvasilenko.blogapp.exceptions.Cloud.CloudArticleTextDoesntUpdateRuntimeException;
-import com.denisvasilenko.blogapp.exceptions.UrlParser.NotValidLinkRuntimeException;
+import com.denisvasilenko.blogapp.exceptions.cloud.CloudArticleTextDoesntCanReadRuntimeException;
+import com.denisvasilenko.blogapp.exceptions.cloud.CloudArticleTextDoesntCreatedRuntimeExceptions;
+import com.denisvasilenko.blogapp.exceptions.cloud.CloudArticleTextDoesntUpdateRuntimeException;
+import com.denisvasilenko.blogapp.exceptions.urlParser.NotValidLinkRuntimeException;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.yandexCloudStore.DTO.CloudUploadRequest;

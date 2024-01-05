@@ -3,12 +3,16 @@ package com.denisvasilenko.blogapp.services;
 import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDto;
 import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoDto;
+import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.config.PasswordEncoderConfig;
-import com.denisvasilenko.blogapp.exceptions.AppError;
+import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
+import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExist;
+import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.repositories.UserRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -37,18 +40,36 @@ public class ProfileServices implements UserDetailsService {
 
     @Transactional
     public User createUser(UserRegistrationRequest userRegistrationRequest){
-        User user=new User();
-        user.setUsername(userRegistrationRequest.getUsername());
-        user.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userRegistrationRequest.getPassword()));
+        try {
+        User user = new User();
+        user.setUsername(userRegistrationRequest.username());
+        user.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userRegistrationRequest.password()));
+        List<Article> articles = new ArrayList<>();
+        user.setArticles(articles);
         user.setRoleCollection(List.of(roleService.getUserRole()));
         return userRepository.save(user);
+        }
+        catch (DataIntegrityViolationException dataIntegrityViolationException) {
+            throw new UserAlreadyExist(userRegistrationRequest.username());
+        }
     }
 
-    public User uploadUser(Long id,User user)
+    @Transactional
+    public User updateUser(User oldUser, UserInfoUpdateDTO userInfoUpdateDTO)
     {
-      user.setId(id);
-      return userRepository.save(user);
+     User updateUser = oldUser.duplicatingUser();
+     if(!oldUser.getPassword().equals(userInfoUpdateDTO.password()) && userInfoUpdateDTO.password()!=null) {
+         updateUser.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userInfoUpdateDTO.password()));
+     }
+     if (oldUser.getAvatarImg() == null || !Arrays.equals(oldUser.getAvatarImg(),userInfoUpdateDTO.avatarImg()) && userInfoUpdateDTO.avatarImg() != null) {
+         updateUser.setAvatarImg(userInfoUpdateDTO.avatarImg());
+     }
+     if (oldUser.getProfileDescription() == null|| !oldUser.getProfileDescription().equals(userInfoUpdateDTO.profileDescription()) && userInfoUpdateDTO.profileDescription()!=null) {
+         updateUser.setProfileDescription(userInfoUpdateDTO.profileDescription());
+     }
+     return userRepository.save(updateUser);
     }
+
     public void deleteUser(User user) {
        userRepository.deleteById(user.getId());
     }
@@ -56,41 +77,36 @@ public class ProfileServices implements UserDetailsService {
     public List<User> getAllUsers(){
         return userRepository.findAll();
     }
-    public Optional<User> findUserByUserName(String name){
-      return userRepository.findByUsername(name);
+
+    public User findUserById(Long id) {
+       return userRepository.findById(id).orElseThrow(() -> new NotFoundUserException("User not found"));
+    }
+    public User findUserByUserName(String name){
+        return userRepository.findByUsername(name).orElseThrow(() -> new NotFoundUserException("User not found"));
     }
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-       User user=findUserByUserName(username).orElseThrow(()->new UsernameNotFoundException(
-               String.format("User '%s' doesn't found", username)
-       ));
+       User user = findUserByUserName(username);
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
                 user.getRoleCollection().stream().map(role -> new SimpleGrantedAuthority(role.getName()))
-                        .collect(Collectors.toList())
+                        .toList()
         );
     }
 
-    public UserInfoDto userInfo(String username) throws AppError {
-        if (findUserByUserName(username).isPresent()){
-            User user=findUserByUserName(username).get();
+    public UserInfoDto userInfo(String username) {
+            User user = findUserByUserName(username);
             return new UserInfoDto(user.getAvatarImg(),
                     user.getUsername(),
                     user.getProfileDescription(),
                     getAllArticlesByUser(user));
-        }
-        else {
-            throw new AppError(404, "User not found");
-        }
     }
     public List<ArticleDto> getAllArticlesByUser(User user){
         ArticleDtoMapper articleDtoMapper = new ArticleDtoMapper();
         return user.getArticles().stream().map(articleDtoMapper::getTextFromYandexCloud)
-                .collect(Collectors.toList());
+                .toList();
     }
-
-
 
 }

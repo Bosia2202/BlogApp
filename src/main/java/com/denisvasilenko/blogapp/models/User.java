@@ -24,8 +24,7 @@ public class User {
     private String username;
     @Column(name = "password")
     private String password;
-    @Lob
-    @Column(name = "avatarImg")
+    @Column(name = "avatarImg",columnDefinition = "bytea")
     private byte[] avatarImg;
     @Column(name = "profileDescription")
     private String profileDescription;
@@ -52,16 +51,26 @@ public class User {
                 Objects.equals(username, user.username) &&
                 Objects.equals(password, user.password) &&
                 Arrays.equals(avatarImg, user.avatarImg) &&
-                Objects.equals(profileDescription, user.profileDescription) &&
-                Objects.equals(articles, user.articles) &&
-                Objects.equals(roleCollection, user.roleCollection);
+                Objects.equals(profileDescription, user.profileDescription);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, username, password, profileDescription, articles, roleCollection);
+        int result = Objects.hash(id, username, password, profileDescription);
         result = 31 * result + Arrays.hashCode(avatarImg);
         return result;
+    }
+
+    public User duplicatingUser() {
+        User duplicateUser = new User();
+        duplicateUser.setId(this.id);
+        duplicateUser.setUsername(this.username);
+        duplicateUser.setPassword(this.password);
+        duplicateUser.setAvatarImg(this.avatarImg);
+        duplicateUser.setProfileDescription(this.profileDescription);
+        duplicateUser.setArticles(this.articles);
+        duplicateUser.setRoleCollection(this.roleCollection);
+        return duplicateUser;
     }
 
 }

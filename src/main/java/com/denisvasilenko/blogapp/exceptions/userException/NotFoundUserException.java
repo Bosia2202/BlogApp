@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.exceptions;
+package com.denisvasilenko.blogapp.exceptions.userException;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,12 +9,11 @@ import java.util.Date;
 @Data
 public class NotFoundUserException extends RuntimeException {
 
-        private String username;
-        private String message;
-        private Date timestamp;
+        private final String message;
+        private final Date timestamp;
 
         public NotFoundUserException(String username) {
-            message="User "+"'"+username+"'"+" doesn't found";
+            message="User "+"'" + username+"'" + " doesn't found";
             this.timestamp = new Date();
         }
 }

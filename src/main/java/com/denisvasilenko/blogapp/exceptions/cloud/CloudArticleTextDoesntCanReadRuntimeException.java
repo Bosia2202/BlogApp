@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.exceptions.Cloud;
+package com.denisvasilenko.blogapp.exceptions.cloud;
 
 import lombok.Getter;
 

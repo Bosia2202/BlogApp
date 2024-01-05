@@ -6,7 +6,7 @@ import com.denisvasilenko.blogapp.DTO.ArticleDto.UpdateArticleDto;
 import com.denisvasilenko.blogapp.exceptions.AccessException;
 import com.denisvasilenko.blogapp.exceptions.ExceptionDto;
 import com.denisvasilenko.blogapp.exceptions.NotFoundArticleException;
-import com.denisvasilenko.blogapp.exceptions.NotFoundUserException;
+import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

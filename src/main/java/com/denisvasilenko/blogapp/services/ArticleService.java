@@ -5,7 +5,7 @@ import com.denisvasilenko.blogapp.DTO.ArticleDto.CreateArticleDto;
 import com.denisvasilenko.blogapp.DTO.ArticleDto.UpdateArticleDto;
 import com.denisvasilenko.blogapp.exceptions.AccessException;
 import com.denisvasilenko.blogapp.exceptions.NotFoundArticleException;
-import com.denisvasilenko.blogapp.exceptions.NotFoundUserException;
+import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.repositories.ArticleRepository;
@@ -46,8 +46,7 @@ public class ArticleService {
 
     @Transactional
     public ResponseEntity<String> addArticle(@NotNull String username,@NotNull CreateArticleDto createArticleDto) {
-         User userOwner = profileServices.findUserByUserName(username)
-                 .orElseThrow(() -> new NotFoundUserException(username));
+         User userOwner = profileServices.findUserByUserName(username);
          String userName = userOwner.getUsername();
          UUID uuid = UUID.randomUUID();
          String articleIdentifier = uuid + userName + createArticleDto.articleName();
@@ -91,8 +90,7 @@ public class ArticleService {
     }
 
     private Optional<Article> checkArticleByUser(@NotNull String username,@NotNull String articleName) {
-        User user = profileServices.findUserByUserName(username)
-                .orElseThrow(() -> new NotFoundUserException(username));
+        User user = profileServices.findUserByUserName(username);
         List<Article> articlesByUser = user.getArticles();
         return articlesByUser.stream().filter(article -> article.getNameArticle().equals(articleName)).findFirst();
     }

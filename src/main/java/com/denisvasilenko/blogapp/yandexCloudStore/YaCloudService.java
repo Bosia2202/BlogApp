@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
-import com.denisvasilenko.blogapp.exceptions.Cloud.*;
+import com.denisvasilenko.blogapp.exceptions.cloud.*;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.yandexCloudStore.DTO.CloudUploadRequest;
 import lombok.extern.log4j.Log4j2;

@@ -1,7 +1,7 @@
 package com.denisvasilenko.blogapp.cloud;
 
-import com.denisvasilenko.blogapp.exceptions.UrlParser.NotValidLinkRuntimeException;
-import com.denisvasilenko.blogapp.exceptions.UrlParser.UrlHaveSpecialSymbolRuntimeException;
+import com.denisvasilenko.blogapp.exceptions.urlParser.NotValidLinkRuntimeException;
+import com.denisvasilenko.blogapp.exceptions.urlParser.UrlHaveSpecialSymbolRuntimeException;
 import com.denisvasilenko.blogapp.yandexCloudStore.UrlParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

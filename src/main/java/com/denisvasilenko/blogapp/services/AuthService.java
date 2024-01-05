@@ -43,13 +43,10 @@ public class AuthService {
     }
 
     public ResponseEntity<?> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
-        if(!userRegistrationRequest.getPassword().equals(userRegistrationRequest.getConfirmPassword())){
-            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),"Incorrect password"),HttpStatus.BAD_REQUEST);
-        }
-        if(profileServices.findUserByUserName(userRegistrationRequest.getUsername()).isPresent()){
-            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),"Incorrect password"),HttpStatus.BAD_REQUEST);
-        }
-        User user=profileServices.createUser(userRegistrationRequest);
+//        if(profileServices.findUserByUserName(userRegistrationRequest.username()){
+//            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),"Incorrect password"),HttpStatus.BAD_REQUEST);
+//        }
+        User user = profileServices.createUser(userRegistrationRequest);
         return ResponseEntity.ok(new UserRegistrationResponse(user.getId(),user.getUsername()));
     }
 }

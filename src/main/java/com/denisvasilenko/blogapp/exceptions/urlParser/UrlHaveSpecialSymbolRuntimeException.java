@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.exceptions.UrlParser;
+package com.denisvasilenko.blogapp.exceptions.urlParser;
 
 import lombok.Getter;
 
