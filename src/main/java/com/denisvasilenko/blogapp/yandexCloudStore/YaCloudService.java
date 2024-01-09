@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @Log4j2
@@ -32,10 +33,10 @@ public class YaCloudService{
         try {
             byte[] articleContentBytes = cloudUploadRequest.getArticleContent().getBytes();
             String bucket = cloudUploadRequest.getBucketName();
-            String key = cloudUploadRequest.getKey();
-            s3Client.putObject(new PutObjectRequest(bucket, key, new ByteArrayInputStream(articleContentBytes), articleContentSize(articleContentBytes)));
+            String key = cloudUploadRequest.getArticleId().toString();
+            s3Client.putObject(new PutObjectRequest(bucket,key, new ByteArrayInputStream(articleContentBytes), articleContentSize(articleContentBytes)));
             log.info("The article '" + cloudUploadRequest.getArticleName() + "' by user '" +cloudUploadRequest.getUserOwner().getUsername()+ "' was uploaded in the YandexCloudStore successfully");
-            return cloudUploadRequestMapperWithUrlArticle(cloudUploadRequest, s3Client.getUrl(bucket,key).toString());
+            return cloudUploadRequestMapperWithUrlArticle(cloudUploadRequest, s3Client.getUrl(bucket,key.toString()).toString());
         }
         catch (AmazonS3Exception amazonS3Exception) {
             throw new CloudArticleTextDoesntCreatedRuntimeExceptions(cloudUploadRequest.getArticleName(),amazonS3Exception.getMessage());
@@ -89,6 +90,7 @@ public class YaCloudService{
 
     private Article cloudUploadRequestMapperWithUrlArticle(CloudUploadRequest cloudUploadRequest,String url) {
         Article article = new Article();
+        article.setId(cloudUploadRequest.getArticleId());
         article.setNameArticle(cloudUploadRequest.getArticleName());
         article.setLikes(cloudUploadRequest.getLikes());
         article.setUserOwner(cloudUploadRequest.getUserOwner());

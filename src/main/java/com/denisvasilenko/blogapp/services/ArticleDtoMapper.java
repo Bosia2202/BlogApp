@@ -10,7 +10,7 @@ public class ArticleDtoMapper {
         YaCloudService yaCloudService = new YaCloudService();
        String articleText = yaCloudService.getArticleText(article.getUrl());
 
-        return new ArticleDto(
+        return new ArticleDto (
                 article.getNameArticle(),
                 articleText,
                 article.getLikes(),

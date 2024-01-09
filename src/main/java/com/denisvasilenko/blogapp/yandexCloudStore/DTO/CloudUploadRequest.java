@@ -1,20 +1,28 @@
 package com.denisvasilenko.blogapp.yandexCloudStore.DTO;
 
 import com.denisvasilenko.blogapp.models.User;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.UUID;
 
-@AllArgsConstructor
 @Getter
 public class CloudUploadRequest {
-    private String bucketName;
-    private String key;
-    private String articleName;
-    private String articleContent;
-    private User userOwner;
-    private LocalDate dateOfCreation;
-    private final int likes = 0;
+    private final String bucketName;
+    private final UUID articleId;
+    private final String articleName;
+    private final String articleContent;
+    private final User userOwner;
+    private final LocalDate dateOfCreation;
+    private final int likes;
+
+    public CloudUploadRequest(String bucketName, String articleName, String articleContent, User userOwner, LocalDate dateOfCreation) {
+        this.bucketName = bucketName;
+        this.articleId = UUID.randomUUID();
+        this.articleName = articleName;
+        this.articleContent = articleContent;
+        this.userOwner = userOwner;
+        this.dateOfCreation = dateOfCreation;
+        this.likes = 0;
+    }
 }

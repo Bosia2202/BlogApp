@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
+import java.util.UUID;
 
 @RestController
 public class ArticleController {
@@ -22,25 +23,26 @@ public class ArticleController {
         this.articleService = articleService;
     }
 
-    @GetMapping("/{author}/{articleName}")
-    public ResponseEntity<ArticleDto> showCurrentArticle(@PathVariable String author,@PathVariable String articleName)  {
-           ArticleDto articleDto=articleService.showArticle(author,articleName);
-           return new ResponseEntity<>(articleDto,HttpStatus.OK);
-    }
+//    @GetMapping("/{author}/{articleName}")
+//    public ResponseEntity<ArticleDto> showCurrentArticle(@PathVariable String author,@PathVariable String articleName)  {
+//          ArticleDto articleDto=articleService.showArticle(author,articleName);
+//          return new ResponseEntity<>(articleDto,HttpStatus.OK);
+//    }
 
     @PutMapping("/newPost")
     public ResponseEntity<String> createNewPost(@RequestBody CreateArticleDto createArticleDto, Principal principal) {
         return articleService.addArticle(principal.getName(), createArticleDto);
     }
 
-    @PatchMapping("/{author}/{articleName}")
-    public ResponseEntity<String> patchPost (@PathVariable String author, @PathVariable String articleName, @RequestBody UpdateArticleDto updateArticleDto, Principal principal) {
-        return articleService.updateArticle(author,principal.getName(),articleName,updateArticleDto);
-    }
+//    @PatchMapping("/{author}/{articleName}")
+//    public ResponseEntity<String> patchPost (@PathVariable String author, @PathVariable String articleName, @RequestBody UpdateArticleDto updateArticleDto, Principal principal) {
+//        return articleService.updateArticle(author,principal.getName(),articleName,updateArticleDto);
+//    }
+//    TODO:Снять скобки
 
     @DeleteMapping("/{author}/{articleName}")
-    public ResponseEntity<String> deletePost (@PathVariable String author,@PathVariable String articleName,Principal principal){
-        return articleService.deleteArticle(author,principal.getName(),articleName);
+    public ResponseEntity<String> deletePost (@PathVariable UUID articleId, Principal principal){
+        return articleService.deleteArticle(principal.getName(),articleId);
     }
     @ExceptionHandler
     private ResponseEntity<ExceptionDto> notFoundArticleExceptionResponseEntity(NotFoundArticleException exception){

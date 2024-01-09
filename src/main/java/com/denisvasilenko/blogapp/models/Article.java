@@ -2,9 +2,11 @@ package com.denisvasilenko.blogapp.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -14,8 +16,7 @@ import java.util.Objects;
 public class Article {
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
     @Column(name = "nameArticle")
     private String nameArticle;
     @Column(name = "url")
@@ -37,17 +38,12 @@ public class Article {
                 Objects.equals(id, article.id) &&
                 Objects.equals(nameArticle, article.nameArticle) &&
                 Objects.equals(url, article.url) &&
-                Objects.equals(dateOfCreation, article.dateOfCreation) &&
-                Objects.equals(userOwner, article.userOwner);
+                Objects.equals(dateOfCreation, article.dateOfCreation);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, nameArticle, url, dateOfCreation, likes, userOwner);
-    }
-
-    public long getId() {
-        return id;
     }
 
     @Override

@@ -38,21 +38,28 @@ public class ArticleService {
         this.yaCloudService = yaCloudService;
     }
 
-    public ArticleDto showArticle(@NotNull String username,@NotNull String articleName) {
-            Article article = checkArticleByUser(username, articleName).orElseThrow(()->new NotFoundArticleException(articleName));
+    public ArticleDto showArticle(Article article) {
             ArticleDtoMapper articleDtoMapper = new ArticleDtoMapper();
             return articleDtoMapper.getTextFromYandexCloud(article);
     }
 
+    public Article findArticleById (UUID articleId) {
+       return articleRepository.findById(articleId).orElseThrow(() -> new NotFoundArticleException(articleId));
+    }
+
+    public Article findByArticleName(String articleName) {
+       return articleRepository.findByNameArticle(articleName).orElseThrow(() -> new NotFoundArticleException(articleName));
+    }
+
+    public List<Article> findAllArticlesByArticleName(String articleName) {
+        return articleRepository.findAllByNameArticle(articleName);
+    }
+
     @Transactional
-    public ResponseEntity<String> addArticle(@NotNull String username,@NotNull CreateArticleDto createArticleDto) {
-         User userOwner = profileServices.findUserByUserName(username);
-         String userName = userOwner.getUsername();
-         UUID uuid = UUID.randomUUID();
-         String articleIdentifier = uuid + userName + createArticleDto.articleName();
+    public ResponseEntity<String> addArticle(@NotNull String userName,@NotNull CreateArticleDto createArticleDto) {
+         User userOwner = profileServices.findUserByUserName(userName);
          CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(
                  "blogapp",
-                 articleIdentifier,
                  createArticleDto.articleName(),
                  createArticleDto.articleContent(),
                  userOwner,
@@ -60,45 +67,40 @@ public class ArticleService {
          );
          Article article = yaCloudService.uploadText(cloudUploadRequest);
          articleRepository.save(article);
-         log.info("Article " + createArticleDto + " by " + userName + " added in database");
+         log.info("Article " + createArticleDto.articleName() + " by " + userName + " added in database");
          return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Transactional
-    public ResponseEntity<String> updateArticle(@NotNull String articleAuthor,@NotNull String requestingUser, String articleName,@NotNull UpdateArticleDto updateArticleDto) {
-           сheckAccessRightsOfTheRequestingUser(requestingUser,articleAuthor);
-           Article article = checkArticleByUser(articleAuthor, articleName).orElseThrow(()->new NotFoundArticleException(articleName));
-           if (!updateArticleDto.newArticleName().equals(articleName)) {
+    public ResponseEntity<String> updateArticle(@NotNull String articleAuthor, @NotNull String currentUser, UUID articleId,@NotNull UpdateArticleDto updateArticleDto) {
+           Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(currentUser,articleId);
+           if (!updateArticleDto.newArticleName().equals(article.getNameArticle())) {
                article.setNameArticle(updateArticleDto.newArticleName());
                articleRepository.save(article);
-               log.info("Article '" + articleName + "' successfully change to '" + updateArticleDto.newArticleName() + "'");
+               log.info("Article '" + article.getNameArticle() + "' successfully change to '" + updateArticleDto.newArticleName() + "'");
            }
            yaCloudService.updateText(article.getUrl(), updateArticleDto.newArticleContent());
-           log.info("Article "+articleName+"' successfully update");
+           log.info("Article " + article.getNameArticle() + "' successfully update");
            return new ResponseEntity<>(HttpStatus.OK);
    }
 
     @Transactional
-    public ResponseEntity<String> deleteArticle(@NotNull String articleAuthor, @NotNull String requestingUser, @NotNull String articleName) {
-        сheckAccessRightsOfTheRequestingUser(requestingUser,articleAuthor);
-        Article article = checkArticleByUser(articleAuthor,articleName)
-                .orElseThrow(() -> new NotFoundArticleException(articleName));
+    public ResponseEntity<String> deleteArticle(@NotNull String userNameByCurrentUser, @NotNull UUID articleId) {
+        Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(userNameByCurrentUser,articleId);
         yaCloudService.deleteArticle(article.getUrl());
-        log.info("ARTICLE : " + article.getId());
         articleRepository.deleteById(article.getId());
+        log.info("ARTICLE : " + article.getId() + " deleted");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private Optional<Article> checkArticleByUser(@NotNull String username,@NotNull String articleName) {
-        User user = profileServices.findUserByUserName(username);
-        List<Article> articlesByUser = user.getArticles();
-        return articlesByUser.stream().filter(article -> article.getNameArticle().equals(articleName)).findFirst();
-    }
-
-    private void сheckAccessRightsOfTheRequestingUser(@NotNull String requestingUser, @NotNull String articleAuthor) {
-        if (!requestingUser.equals(articleAuthor)) {
+    private Article checkingAccessRightsOfTheCurrentUserToModifyArticles(@NotNull String userNameByCurrentUser, @NotNull UUID articleId) {
+        User currentUser = profileServices.findUserByUserName(userNameByCurrentUser);
+        Article verifiableArticle = findArticleById(articleId);
+        if(!currentUser.getArticles().stream().anyMatch(article -> article.equals(verifiableArticle))){
             throw new AccessException();
         }
+        log.info("User can delete article! Checking access is access!");
+        return verifiableArticle;
     }
 
 }

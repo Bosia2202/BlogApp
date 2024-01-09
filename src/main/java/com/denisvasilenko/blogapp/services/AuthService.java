@@ -43,9 +43,6 @@ public class AuthService {
     }
 
     public ResponseEntity<?> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
-//        if(profileServices.findUserByUserName(userRegistrationRequest.username()){
-//            return new ResponseEntity<>(new AppError(HttpStatus.BAD_REQUEST.value(),"Incorrect password"),HttpStatus.BAD_REQUEST);
-//        }
         User user = profileServices.createUser(userRegistrationRequest);
         return ResponseEntity.ok(new UserRegistrationResponse(user.getId(),user.getUsername()));
     }

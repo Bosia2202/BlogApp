@@ -7,7 +7,6 @@ import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException
 import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExist;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.services.ProfileServices;
-import com.denisvasilenko.blogapp.services.RoleService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -26,8 +25,7 @@ import java.nio.file.Paths;
 @SpringBootTest
 @Log4j2
 public class ProfileServiceTest {
-    @Autowired
-    private RoleService roleService;
+
     @Autowired
     private ProfileServices profileServices;
 
