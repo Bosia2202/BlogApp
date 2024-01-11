@@ -65,7 +65,6 @@ public class ProfileServiceTest {
 
     @Test
     public void whenUpdateUserChangingAvatar_thanShouldGetUpdateUserWithNewAvatar() {
-
         User oldUser = createTestUser();
         byte[] newAvatar = getImgBytesArray();
         UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(null, newAvatar, null);

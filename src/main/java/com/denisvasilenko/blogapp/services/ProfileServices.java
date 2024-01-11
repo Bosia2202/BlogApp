@@ -10,7 +10,10 @@ import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExist;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.repositories.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,6 +30,8 @@ import java.util.*;
 @Log4j2
 public class ProfileServices implements UserDetailsService {
 
+    @PersistenceContext
+    private EntityManager entityManager;
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final PasswordEncoderConfig passwordEncoderConfig;
@@ -54,6 +59,10 @@ public class ProfileServices implements UserDetailsService {
         }
     }
 
+    public User refreshUserData(User user) {
+        return findUserById(user.getId()); //TODO: ИСПРАВИТЬ ОШИБКИ КОТОРЫЕ В SONARLIST
+    }
+
     @Transactional
     public User updateUser(User oldUser, UserInfoUpdateDTO userInfoUpdateDTO)
     {
@@ -78,11 +87,19 @@ public class ProfileServices implements UserDetailsService {
         return userRepository.findAll();
     }
 
+    @Transactional
     public User findUserById(Long id) {
-       return userRepository.findById(id).orElseThrow(() -> new NotFoundUserException("User not found"));
+       User foundedUser = userRepository.findById(id).orElseThrow(() -> new NotFoundUserException("User not found"));
+       Hibernate.initialize(foundedUser.getArticles());
+       entityManager.detach(foundedUser);
+       return foundedUser;
     }
+    @Transactional
     public User findUserByUserName(String name){
-        return userRepository.findByUsername(name).orElseThrow(() -> new NotFoundUserException("User not found"));
+        User foundedUser =  userRepository.findByUsername(name).orElseThrow(() -> new NotFoundUserException("User not found"));
+        Hibernate.initialize(foundedUser.getArticles());
+        entityManager.detach(foundedUser);
+        return foundedUser;
     }
     @Override
     @Transactional
@@ -108,5 +125,6 @@ public class ProfileServices implements UserDetailsService {
         return user.getArticles().stream().map(articleDtoMapper::getTextFromYandexCloud)
                 .toList();
     }
+
 
 }

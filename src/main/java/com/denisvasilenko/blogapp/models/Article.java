@@ -1,5 +1,6 @@
 package com.denisvasilenko.blogapp.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -25,8 +26,10 @@ public class Article {
     private LocalDate dateOfCreation;
     @Column(name = "likes")
     private int likes;
-    @ManyToOne
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "user_id",referencedColumnName = "id")
+    @JsonBackReference
     private User userOwner;
 
     @Override

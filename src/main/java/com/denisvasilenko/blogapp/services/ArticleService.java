@@ -55,6 +55,7 @@ public class ArticleService {
         return articleRepository.findAllByNameArticle(articleName);
     }
 
+    @Transactional
     public List<Article> searchArticlesByNameArticleFromSpecificUser(String articleName, String username) {
         User specificUser = profileServices.findUserByUserName(username);
         return specificUser.getArticles().stream().filter(article -> article.getNameArticle().toLowerCase()

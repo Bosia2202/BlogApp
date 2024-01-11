@@ -28,9 +28,9 @@ public class User {
     private byte[] avatarImg;
     @Column(name = "profileDescription")
     private String profileDescription;
-    @OneToMany(mappedBy = "userOwner", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userOwner", cascade = CascadeType.ALL)
     private List<Article> articles;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable (
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),

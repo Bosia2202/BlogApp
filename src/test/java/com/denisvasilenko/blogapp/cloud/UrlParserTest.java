@@ -15,9 +15,9 @@ public class UrlParserTest {
 
     @Test
     public void whenPassCorrectUrl_thenGetBucketAndKey() {
-        String correctUrl = "https://blogapp.storage.yandexcloud.net/b776b1ca-0e55-4b93-bc93-c6db81bb6436PosterTestArticle";
+        String correctUrl = "https://blogapp.storage.yandexcloud.net/FFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF";
         String expectedBucket = "blogapp";
-        String expectedKey = "b776b1ca-0e55-4b93-bc93-c6db81bb6436PosterTestArticle";
+        String expectedKey = "FFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF";
         UrlParser urlParser = new UrlParser();
         urlParser.parseUrl(correctUrl);
         String actualBucket = urlParser.getBucket();
