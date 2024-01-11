@@ -2,11 +2,13 @@ package com.denisvasilenko.blogapp.repositories;
 
 import com.denisvasilenko.blogapp.DTO.ArticleDto.CreateArticleDto;
 import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
+import com.denisvasilenko.blogapp.exceptions.NotFoundArticleException;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.services.ArticleService;
 import com.denisvasilenko.blogapp.services.ProfileServices;
 import com.denisvasilenko.blogapp.services.RoleService;
+import com.denisvasilenko.blogapp.yandexCloudStore.DTO.CloudUploadRequest;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -17,8 +19,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 
 @RunWith(SpringRunner.class)
@@ -33,7 +37,7 @@ public class ArticleServiceTest {
     private ProfileServices profileServices;
 
     @Test
-    public void whenUseMethodAddArticle_thanShouldGetExpectedArticleFromSpecificUserAndDeleteIt() {
+    public void whenUseMethodAddArticle_thanShouldGetExpectedArticleAndDeleteIt() {
         User emptyUser = createEmptyTestUser();
         String testArticleName = "testArticle";
         String testArticleContent = "\n" +
@@ -52,34 +56,49 @@ public class ArticleServiceTest {
         String actualUserOwnerForArticle = actualArticle.getUserOwner().getUsername();
         Assertions.assertEquals(emptyUser.getUsername(), actualUserOwnerForArticle);
         articleService.deleteArticle(emptyUser.getUsername(),actualArticle.getId());
+        profileServices.deleteUser(emptyUser);
     }
 
-//    @Test
-//    public void whenUseMethodFindByIdAndCurrentArticleDoesNotExist_thanShouldGetThrowNotFoundArticleException() {
-//        Long id = 1L;
-//        Optional<Article> doesNotExitsArticle = articleRepository.findById(id);
-//        Assertions.assertFalse(doesNotExitsArticle.isPresent());
-//    }
-//
-//    @Test
-//    public void whenUseMethodFindByArticleName_thanShouldGetExpectedArticle() {
-//        Long articleId = 1L;
-//        String articleName = "testArticle";
-//        String url = "https://blogapp.yandex.cloud/testArticle";
-//        LocalDate testDate = LocalDate.now();
-//        int likes = 0;
-//        User testUser = createEmptyTestUser();
-//        Article newArticle = new Article(articleId, articleName, url, testDate, likes, testUser);
-//        articleRepository.save(newArticle);
-//        User expectedTestUser = createExpectedTestUser();
-//        Article expectedArticle = new Article(articleId, articleName, url, testDate, likes, expectedTestUser);
-//        Optional<Article> actualArticleOptional = articleRepository.findByNameArticle(articleName);
-//        if (actualArticleOptional.isPresent()) {
-//            Article actualArticle = actualArticleOptional.get();
-//            Assertions.assertEquals(expectedArticle, actualArticle);
-//        }
-//    }
-//
+    @Test
+    public void whenUseMethodFindByIdAndCurrentArticleDoesNotExist_thanShouldGetThrowNotFoundArticleException() {
+        UUID doesNotExistArticleUUID = UUID.fromString("FFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
+        Assertions.assertThrows(NotFoundArticleException.class, () -> articleService.findArticleById(doesNotExistArticleUUID));
+    }
+
+    @Test
+    public void whenUseMethodAddArticle_thanShouldGetExpectedArticleFromSpecificUserAndDeleteIt() {
+        User emptyUser = createEmptyTestUser();
+        String username = emptyUser.getUsername();
+
+        String articleNameForFirstArticle = "Car: Nissan Teana L33";
+        String articleContentForFirstArticle = "The Nissan Teana is a mid-size sedan produced by Japanese automobile manufacturer Nissan. It was exported as the Nissan Maxima and Nissan Cefiro to certain markets. It replaces the Nissan Bluebird, Laurel and Cefiro.";
+        CreateArticleDto createArticleDtoForFirstArticle = new CreateArticleDto(articleNameForFirstArticle,articleContentForFirstArticle);
+        articleService.addArticle(username,createArticleDtoForFirstArticle);
+
+        String articleNameForSecondArticle = "Airplane: Boeing 747";
+        String articleContentForSecondArticle = "The Boeing 747 is a large, long-range wide-body airliner designed and manufactured by Boeing Commercial Airplanes in the United States between 1968 and 2023. After introducing the 707 in October 1958, Pan Am wanted a jet 2+1⁄2 times its size, to reduce its seat cost by 30%. In 1965, Joe Sutter left the 737 development program to design the 747. ";
+        CreateArticleDto createArticleDtoForSecondArticle = new CreateArticleDto(articleNameForSecondArticle,articleContentForSecondArticle);
+        articleService.addArticle(username,createArticleDtoForSecondArticle);
+
+        String articleNameForThirdArticle = "Car: Porsche 911";
+        String articleContentForThirdArticle = "Porsche 911 — общее название семейства спортивных автомобилей и автомобилей категории GT, выпускающихся компанией немецкой Porsche AG с 1965 года по настоящее время.";
+        CreateArticleDto createArticleDtoForThirdArticle = new CreateArticleDto(articleNameForThirdArticle,articleContentForThirdArticle);
+        articleService.addArticle(username,createArticleDtoForThirdArticle);
+
+        String[] expectedArticlesNames = new String[]{articleNameForFirstArticle, articleNameForThirdArticle} ;
+       // String[] expectedArticlesContent = new String[]{articleContentForFirstArticle,articleContentForThirdArticle};
+        List<Article> actualArticles = articleService.searchArticlesByNameArticleFromSpecificUser("car",username);
+        IntStream.range(0, actualArticles.size()).forEach(articleIterator ->
+                Assertions.assertEquals(expectedArticlesNames[articleIterator], actualArticles.get(articleIterator).getNameArticle())
+        );
+       List<Article> articlesForDelete = emptyUser.getArticles();
+       for(Article article : articlesForDelete) {
+           articleService.deleteArticle(username,article.getId());
+       }
+       profileServices.deleteUser(emptyUser);
+       //TODO: Доделать сравнение для контента
+    }
+
     private User createEmptyTestUser() {
         String username = "testUser";
         String password = "12345";
@@ -87,4 +106,5 @@ public class ArticleServiceTest {
         return profileServices.createUser(userRequest);
     }
 }
+
 

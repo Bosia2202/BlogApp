@@ -55,6 +55,13 @@ public class ArticleService {
         return articleRepository.findAllByNameArticle(articleName);
     }
 
+    public List<Article> searchArticlesByNameArticleFromSpecificUser(String articleName, String username) {
+        User specificUser = profileServices.findUserByUserName(username);
+        return specificUser.getArticles().stream().filter(article -> article.getNameArticle().toLowerCase()
+                .contains(articleName.toLowerCase()))
+                .toList();
+    }
+
     @Transactional
     public ResponseEntity<String> addArticle(@NotNull String userName,@NotNull CreateArticleDto createArticleDto) {
          User userOwner = profileServices.findUserByUserName(userName);
