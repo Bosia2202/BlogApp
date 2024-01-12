@@ -14,7 +14,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.UUID;
 
 @Service
 @Log4j2
@@ -46,7 +45,7 @@ public class YaCloudService{
     }
 
 
-    public String getArticleText(String url) {
+    public String getArticleTextByUrl(String url) {
         UrlParser urlParser = new UrlParser();
         urlParser.parseUrl(url);
         String bucket = urlParser.getBucket();

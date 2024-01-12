@@ -1,6 +1,7 @@
 package com.denisvasilenko.blogapp.DTO.UserDto;
 
 import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDto;
+import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDtoPreview;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +11,7 @@ public record UserInfoDto(
     byte[] avatarImg,
     String username,
     String profileDescription,
-    List<ArticleDto> articles) {
+    List<ArticleDtoPreview> articles) {
 
     @Override
     public boolean equals(Object o) {
@@ -29,11 +30,11 @@ public record UserInfoDto(
 
     @Override
     public String toString() {
-        return "UserInfoDto{" +
-                "avatarImg=" + Arrays.toString(avatarImg) +
-                ", username='" + username + '\'' +
-                ", profileDescription='" + profileDescription + '\'' +
-                ", articles=" + articles +
+        return "UserInfoDto {" +
+                "avatarImg = " + Arrays.toString(avatarImg) +
+                ", username = '" + username + '\'' +
+                ", profileDescription = '" + profileDescription + '\'' +
+                ", articles = " + articles +
                 '}';
     }
 }

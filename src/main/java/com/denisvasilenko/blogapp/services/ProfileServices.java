@@ -1,6 +1,6 @@
 package com.denisvasilenko.blogapp.services;
 
-import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDto;
+import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDtoPreview;
 import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoDto;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
@@ -19,11 +19,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.LongFunction;
 
 
 @Service
@@ -59,8 +60,13 @@ public class ProfileServices implements UserDetailsService {
         }
     }
 
-    public User refreshUserData(User user) {
-        return findUserById(user.getId()); //TODO: ИСПРАВИТЬ ОШИБКИ КОТОРЫЕ В SONARLIST
+    @Transactional
+    public User findUserById(Long id) {
+        return processingFoundUser(id,userRepository::findById);
+    }
+    @Transactional
+    public User findUserByUserName(String name){
+        return processingFoundUser(name,userRepository::findByUsername);
     }
 
     @Transactional
@@ -79,32 +85,23 @@ public class ProfileServices implements UserDetailsService {
      return userRepository.save(updateUser);
     }
 
+    @Transactional
+    public User refreshUserData(User user) {
+        return processingFoundUser(user.getId(),userRepository::findById);
+    }
+
     public void deleteUser(User user) {
        userRepository.deleteById(user.getId());
     }
 
-    public List<User> getAllUsers(){
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    @Transactional
-    public User findUserById(Long id) {
-       User foundedUser = userRepository.findById(id).orElseThrow(() -> new NotFoundUserException("User not found"));
-       Hibernate.initialize(foundedUser.getArticles());
-       entityManager.detach(foundedUser);
-       return foundedUser;
-    }
-    @Transactional
-    public User findUserByUserName(String name){
-        User foundedUser =  userRepository.findByUsername(name).orElseThrow(() -> new NotFoundUserException("User not found"));
-        Hibernate.initialize(foundedUser.getArticles());
-        entityManager.detach(foundedUser);
-        return foundedUser;
-    }
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-       User user = findUserByUserName(username);
+    public UserDetails loadUserByUsername(String username) {
+        User user = processingFoundUser(username,userRepository::findByUsername);
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -114,17 +111,32 @@ public class ProfileServices implements UserDetailsService {
     }
 
     public UserInfoDto userInfo(String username) {
-            User user = findUserByUserName(username);
-            return new UserInfoDto(user.getAvatarImg(),
+        User user = processingFoundUser(username,userRepository::findByUsername);
+        return new UserInfoDto(user.getAvatarImg(),
                     user.getUsername(),
                     user.getProfileDescription(),
-                    getAllArticlesByUser(user));
-    }
-    public List<ArticleDto> getAllArticlesByUser(User user){
-        ArticleDtoMapper articleDtoMapper = new ArticleDtoMapper();
-        return user.getArticles().stream().map(articleDtoMapper::getTextFromYandexCloud)
-                .toList();
+                    user.getArticles().stream()
+                            .map(article -> {
+                                return new ArticleDtoPreview(
+                                        article.getId(),
+                                        article.getNameArticle(),
+                                        article.getDateOfCreation(),
+                                        article.getLikes());})
+                            .toList());
     }
 
+    private User processingFoundUser(Long searchParam, LongFunction<Optional<User>> finder) {
+        User user = finder.apply(searchParam).orElseThrow(() -> new NotFoundUserException(searchParam));
+        Hibernate.initialize(user.getArticles());
+        entityManager.detach(user);
+        return user;
+    }
+
+    private User processingFoundUser(String searchParam, Function<String, Optional<User>> finder) {
+        User user = finder.apply(searchParam).orElseThrow(() -> new NotFoundUserException(searchParam));
+        Hibernate.initialize(user.getArticles());
+        entityManager.detach(user);
+        return user;
+    }
 
 }

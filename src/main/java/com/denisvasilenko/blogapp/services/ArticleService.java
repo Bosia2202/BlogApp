@@ -1,6 +1,7 @@
 package com.denisvasilenko.blogapp.services;
 
 import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDto;
+import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDtoPreview;
 import com.denisvasilenko.blogapp.DTO.ArticleDto.CreateArticleDto;
 import com.denisvasilenko.blogapp.DTO.ArticleDto.UpdateArticleDto;
 import com.denisvasilenko.blogapp.exceptions.AccessException;
@@ -19,10 +20,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 @Service
 @Slf4j
@@ -39,16 +42,21 @@ public class ArticleService {
     }
 
     public ArticleDto showArticle(Article article) {
-            ArticleDtoMapper articleDtoMapper = new ArticleDtoMapper();
-            return articleDtoMapper.getTextFromYandexCloud(article);
+           return new ArticleDto (
+                   article.getNameArticle(),
+                   getArticleText(article),
+                   article.getLikes(),
+                   article.getDateOfCreation(),
+                   article.getUserOwner().getUsername()
+        );
     }
 
     public Article findArticleById (UUID articleId) {
-       return articleRepository.findById(articleId).orElseThrow(() -> new NotFoundArticleException(articleId));
+        return processingTheArticleFound(articleId,articleRepository::findById);
     }
 
     public Article findByArticleName(String articleName) {
-       return articleRepository.findByNameArticle(articleName).orElseThrow(() -> new NotFoundArticleException(articleName));
+        return processingTheArticleFound(articleName,articleRepository::findByNameArticle);
     }
 
     public List<Article> findAllArticlesByArticleName(String articleName) {
@@ -92,6 +100,10 @@ public class ArticleService {
            return new ResponseEntity<>(HttpStatus.OK);
    }
 
+   public String getArticleText(Article article) {
+        return yaCloudService.getArticleTextByUrl(article.getUrl());
+   }
+
     @Transactional
     public ResponseEntity<String> deleteArticle(@NotNull String userNameByCurrentUser, @NotNull UUID articleId) {
         Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(userNameByCurrentUser,articleId);
@@ -109,6 +121,14 @@ public class ArticleService {
         }
         log.info("User can delete article! Checking access is access!");
         return verifiableArticle;
+    }
+
+    private Article processingTheArticleFound(UUID searchParam, Function<UUID,Optional<Article>> finder) {
+        return finder.apply(searchParam).orElseThrow(() -> new NotFoundArticleException(searchParam));
+    }
+
+    private Article processingTheArticleFound(String searchParam, Function<String,Optional<Article>> finder) {
+        return finder.apply(searchParam).orElseThrow(() -> new NotFoundArticleException(searchParam));
     }
 
 }

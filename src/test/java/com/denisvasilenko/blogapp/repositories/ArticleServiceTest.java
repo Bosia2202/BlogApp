@@ -68,8 +68,8 @@ public class ArticleServiceTest {
 
     @Test
     public void whenUseMethodAddArticle_thanShouldGetExpectedArticleFromSpecificUserAndDeleteIt() {
-        User emptyUser = createEmptyTestUser();
-        String username = emptyUser.getUsername();
+        User user = createEmptyTestUser();
+        String username = user.getUsername();
 
         String articleNameForFirstArticle = "Car: Nissan Teana L33";
         String articleContentForFirstArticle = "The Nissan Teana is a mid-size sedan produced by Japanese automobile manufacturer Nissan. It was exported as the Nissan Maxima and Nissan Cefiro to certain markets. It replaces the Nissan Bluebird, Laurel and Cefiro.";
@@ -87,19 +87,31 @@ public class ArticleServiceTest {
         articleService.addArticle(username, createArticleDtoForThirdArticle);
 
         String[] expectedArticlesNames = new String[]{articleNameForFirstArticle, articleNameForThirdArticle};
-        // String[] expectedArticlesContent = new String[]{articleContentForFirstArticle,articleContentForThirdArticle};
+        String[] expectedArticlesContent = new String[]{articleContentForFirstArticle,articleContentForThirdArticle};
         List<Article> actualArticles = articleService.searchArticlesByNameArticleFromSpecificUser("car", username);
         IntStream.range(0, actualArticles.size()).forEach(articleIterator ->
                 Assertions.assertEquals(expectedArticlesNames[articleIterator], actualArticles.get(articleIterator).getNameArticle())
         );
-        emptyUser = profileServices.refreshUserData(emptyUser);
-        List<Article> articlesForDelete = emptyUser.getArticles();
+        IntStream.range(0, actualArticles.size()).forEach(articleIterator ->
+                Assertions.assertEquals(expectedArticlesContent[articleIterator], articleService.getArticleText(actualArticles.get(articleIterator)))
+        );
+        user = profileServices.refreshUserData(user);
+        List<Article> articlesForDelete = user.getArticles();
         for (Article article : articlesForDelete) {
-            articleService.deleteArticle(emptyUser.getUsername(), article.getId());
+            articleService.deleteArticle(user.getUsername(), article.getId());
         }
-        profileServices.deleteUser(emptyUser);
+        profileServices.deleteUser(user);
     }
 
+    @Test
+    public void updateArticleText() {
+        User user = createEmptyTestUser();
+        String articleNameForThirdArticle = "Car: Porsche 911";
+        String articleContentForThirdArticle = "Porsche 911 — общее название семейства спортивных автомобилей и автомобилей категории GT, выпускающихся компанией немецкой Porsche AG с 1965 года по настоящее время.";
+        CreateArticleDto createArticleDtoForThirdArticle = new CreateArticleDto(articleNameForThirdArticle, articleContentForThirdArticle);
+        articleService.addArticle(username, createArticleDtoForThirdArticle);
+
+    }
     private User createEmptyTestUser() {
         String username = "testUser";
         String password = "12345";
@@ -107,13 +119,6 @@ public class ArticleServiceTest {
         return profileServices.createUser(userRequest);
     }
 
-    @Transactional
-    public void deleteAllArticlesFromSpecialUser(User user) {
-        List<Article> articlesForDelete = user.getArticles();
-        for (Article article : articlesForDelete) {
-            articleService.deleteArticle(user.getUsername(), article.getId());
-        }
-    }
 }
 
 
