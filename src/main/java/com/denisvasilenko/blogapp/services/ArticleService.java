@@ -1,12 +1,10 @@
 package com.denisvasilenko.blogapp.services;
 
 import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDto;
-import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDtoPreview;
 import com.denisvasilenko.blogapp.DTO.ArticleDto.CreateArticleDto;
 import com.denisvasilenko.blogapp.DTO.ArticleDto.UpdateArticleDto;
 import com.denisvasilenko.blogapp.exceptions.AccessException;
-import com.denisvasilenko.blogapp.exceptions.NotFoundArticleException;
-import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
+import com.denisvasilenko.blogapp.exceptions.articleException.NotFoundArticleException;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.repositories.ArticleRepository;
@@ -20,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -88,20 +85,19 @@ public class ArticleService {
     }
 
     @Transactional
-    public ResponseEntity<String> updateArticle(@NotNull String articleAuthor, @NotNull String currentUser, UUID articleId,@NotNull UpdateArticleDto updateArticleDto) {
-           Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(currentUser,articleId);
-           if (!updateArticleDto.newArticleName().equals(article.getNameArticle())) {
+    public ResponseEntity<String> updateArticle(@NotNull String currentUser, @NotNull UpdateArticleDto updateArticleDto) {
+           Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(currentUser,updateArticleDto.articleId());
+           if (updateArticleDto.newArticleName() != null) {
                article.setNameArticle(updateArticleDto.newArticleName());
                articleRepository.save(article);
                log.info("Article '" + article.getNameArticle() + "' successfully change to '" + updateArticleDto.newArticleName() + "'");
            }
-           yaCloudService.updateText(article.getUrl(), updateArticleDto.newArticleContent());
+           if(updateArticleDto.newArticleContent() != null) {
+               yaCloudService.updateText(article.getUrl(), updateArticleDto.newArticleContent());
+               log.info("Text successfully change");
+           }
            log.info("Article " + article.getNameArticle() + "' successfully update");
            return new ResponseEntity<>(HttpStatus.OK);
-   }
-
-   public String getArticleText(Article article) {
-        return yaCloudService.getArticleTextByUrl(article.getUrl());
    }
 
     @Transactional
@@ -113,14 +109,13 @@ public class ArticleService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private Article checkingAccessRightsOfTheCurrentUserToModifyArticles(@NotNull String userNameByCurrentUser, @NotNull UUID articleId) {
+    private Article checkingAccessRightsOfTheCurrentUserToModifyArticles(@NotNull String userNameByCurrentUser, @NotNull UUID checkingArticleId) {
         User currentUser = profileServices.findUserByUserName(userNameByCurrentUser);
-        Article verifiableArticle = findArticleById(articleId);
-        if(!currentUser.getArticles().stream().anyMatch(article -> article.equals(verifiableArticle))){
+        if(currentUser.getArticles().stream().noneMatch(article -> article.getId().equals(checkingArticleId))){
             throw new AccessException();
         }
         log.info("User can delete article! Checking access is access!");
-        return verifiableArticle;
+        return processingTheArticleFound(checkingArticleId,articleRepository::findById);
     }
 
     private Article processingTheArticleFound(UUID searchParam, Function<UUID,Optional<Article>> finder) {
@@ -131,4 +126,7 @@ public class ArticleService {
         return finder.apply(searchParam).orElseThrow(() -> new NotFoundArticleException(searchParam));
     }
 
+    private String getArticleText(Article article) {
+        return yaCloudService.getArticleTextByUrl(article.getUrl());
+    }
 }

@@ -7,6 +7,7 @@ import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.config.PasswordEncoderConfig;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExist;
+import com.denisvasilenko.blogapp.exceptions.userException.UserDeletionException;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.repositories.UserRepository;
@@ -90,8 +91,24 @@ public class ProfileServices implements UserDetailsService {
         return processingFoundUser(user.getId(),userRepository::findById);
     }
 
+    @Transactional
     public void deleteUser(User user) {
-       userRepository.deleteById(user.getId());
+        try {
+            userRepository.deleteById(user.getId());
+        }
+        catch (Exception exception) {
+            throw new UserDeletionException(user.getUsername(),exception.getMessage());
+        }
+    }
+
+    @Transactional
+    public void deleteUserByUsername(String username) {
+        try {
+        userRepository.deleteByUsername(username);
+        }
+        catch (Exception exception) {
+            throw new UserDeletionException(username,exception.getMessage());
+        }
     }
 
     public List<User> getAllUsers() {

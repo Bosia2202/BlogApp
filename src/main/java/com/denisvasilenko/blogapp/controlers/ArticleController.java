@@ -1,11 +1,9 @@
 package com.denisvasilenko.blogapp.controlers;
 
-import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDto;
 import com.denisvasilenko.blogapp.DTO.ArticleDto.CreateArticleDto;
-import com.denisvasilenko.blogapp.DTO.ArticleDto.UpdateArticleDto;
 import com.denisvasilenko.blogapp.exceptions.AccessException;
 import com.denisvasilenko.blogapp.exceptions.ExceptionDto;
-import com.denisvasilenko.blogapp.exceptions.NotFoundArticleException;
+import com.denisvasilenko.blogapp.exceptions.articleException.NotFoundArticleException;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;

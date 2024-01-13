@@ -1,7 +1,10 @@
 package com.denisvasilenko.blogapp.exceptions.userException;
 
+import lombok.Getter;
+
 import java.util.Date;
 
+@Getter
 public class UserAlreadyExist extends RuntimeException {
 
     private final String message;

@@ -1,27 +1,25 @@
 package com.denisvasilenko.blogapp.repositories;
 
 import com.denisvasilenko.blogapp.DTO.ArticleDto.CreateArticleDto;
+import com.denisvasilenko.blogapp.DTO.ArticleDto.UpdateArticleDto;
 import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
-import com.denisvasilenko.blogapp.exceptions.NotFoundArticleException;
+import com.denisvasilenko.blogapp.exceptions.AccessException;
+import com.denisvasilenko.blogapp.exceptions.articleException.NotFoundArticleException;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.services.ArticleService;
 import com.denisvasilenko.blogapp.services.ProfileServices;
 import com.denisvasilenko.blogapp.services.RoleService;
-import com.denisvasilenko.blogapp.yandexCloudStore.DTO.CloudUploadRequest;
+import com.denisvasilenko.blogapp.yandexCloudStore.YaCloudService;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -36,6 +34,9 @@ public class ArticleServiceTest {
     private RoleService roleService;
     @Autowired
     private ProfileServices profileServices;
+
+    @Autowired
+    private YaCloudService yaCloudService;
 
     @Test
     public void whenUseMethodAddArticle_thanShouldGetExpectedArticleAndDeleteIt() {
@@ -58,12 +59,6 @@ public class ArticleServiceTest {
         Assertions.assertEquals(emptyUser.getUsername(), actualUserOwnerForArticle);
         articleService.deleteArticle(emptyUser.getUsername(), actualArticle.getId());
         profileServices.deleteUser(emptyUser);
-    }
-
-    @Test
-    public void whenUseMethodFindByIdAndCurrentArticleDoesNotExist_thanShouldGetThrowNotFoundArticleException() {
-        UUID doesNotExistArticleUUID = UUID.fromString("FFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
-        Assertions.assertThrows(NotFoundArticleException.class, () -> articleService.findArticleById(doesNotExistArticleUUID));
     }
 
     @Test
@@ -93,7 +88,7 @@ public class ArticleServiceTest {
                 Assertions.assertEquals(expectedArticlesNames[articleIterator], actualArticles.get(articleIterator).getNameArticle())
         );
         IntStream.range(0, actualArticles.size()).forEach(articleIterator ->
-                Assertions.assertEquals(expectedArticlesContent[articleIterator], articleService.getArticleText(actualArticles.get(articleIterator)))
+                Assertions.assertEquals(expectedArticlesContent[articleIterator], getArticleTextForTesting(actualArticles.get(articleIterator)))
         );
         user = profileServices.refreshUserData(user);
         List<Article> articlesForDelete = user.getArticles();
@@ -104,19 +99,129 @@ public class ArticleServiceTest {
     }
 
     @Test
-    public void updateArticleText() {
-        User user = createEmptyTestUser();
-        String articleNameForThirdArticle = "Car: Porsche 911";
-        String articleContentForThirdArticle = "Porsche 911 — общее название семейства спортивных автомобилей и автомобилей категории GT, выпускающихся компанией немецкой Porsche AG с 1965 года по настоящее время.";
-        CreateArticleDto createArticleDtoForThirdArticle = new CreateArticleDto(articleNameForThirdArticle, articleContentForThirdArticle);
-        articleService.addArticle(username, createArticleDtoForThirdArticle);
-
+    public void whenUseMethodFindByIdAndCurrentArticleDoesNotExist_thanShouldGetThrowNotFoundArticleException() {
+        UUID doesNotExistArticleUUID = UUID.fromString("FFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
+        Assertions.assertThrows(NotFoundArticleException.class, () -> articleService.findArticleById(doesNotExistArticleUUID));
     }
+
+    @Test
+    public void whenUseMethodFindByUsernameAndCurrentArticleDoesNotExist_thanShouldGetThrowNotFoundArticleException() {
+        String doesNotExistArticleName = "FFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF";
+        Assertions.assertThrows(NotFoundArticleException.class, () -> articleService.findByArticleName(doesNotExistArticleName));
+    }
+
+    @Test
+    public void whenUseTheModifyArticleMethodWithModifiedArticleNameArgument_thanShouldGetModifiedArticleWithNewArticleName () {
+        User user = createEmptyTestUser();
+        String username = user.getUsername();
+        String initialArticleName = "Car: Porsche 911";
+        String initialArticleContent = "Porsche 911 — общее название семейства спортивных автомобилей и автомобилей категории GT, выпускающихся компанией немецкой Porsche AG с 1965 года по настоящее время.";
+        CreateArticleDto createArticleDtoForThirdArticle = new CreateArticleDto(initialArticleName, initialArticleContent);
+        articleService.addArticle(username, createArticleDtoForThirdArticle);
+        user = profileServices.refreshUserData(user);
+        Article notUpdateArticle = user.getArticles().stream().filter(articleFromList -> articleFromList.getNameArticle().equals(initialArticleName)).findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
+        String newArticleName = "Машина: Porsche 911";
+        UpdateArticleDto updateArticleDto = new UpdateArticleDto(notUpdateArticle.getId(), newArticleName, null);
+        articleService.updateArticle(username,updateArticleDto);
+        Article updateArticle = articleService.findArticleById(notUpdateArticle.getId());
+        String actualArticleName = updateArticle.getNameArticle();
+        String actualArticleContent = getArticleTextForTesting(updateArticle);
+        Assertions.assertEquals(newArticleName, actualArticleName);
+        Assertions.assertEquals(initialArticleContent, actualArticleContent);
+        articleService.deleteArticle(username,updateArticle.getId());
+        profileServices.deleteUser(user);
+    }
+
+    @Test
+    public void whenUseTheModifyArticleMethodWithModifiedArticleContentArgument_thanShouldGetModifiedArticleWithNewArticleName() {
+        User user = createEmptyTestUser();
+        String username = user.getUsername();
+        String initialArticleName = "Car: Porsche 911";
+        String initialArticleContent = "Porsche 911 — общее название семейства спортивных автомобилей и автомобилей категории GT, выпускающихся компанией немецкой Porsche AG с 1965 года по настоящее время.";
+        CreateArticleDto createArticleDtoForThirdArticle = new CreateArticleDto(initialArticleName, initialArticleContent);
+        articleService.addArticle(username, createArticleDtoForThirdArticle);
+        user = profileServices.refreshUserData(user);
+        Article notUpdateArticle = user.getArticles().stream().filter(articleFromList -> articleFromList.getNameArticle().equals(initialArticleName)).findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
+        String newArticleContent = "Porsche 911 is the common name for a family of sports cars and GT cars produced by the German Porsche AG from 1965 to the present.";
+        UpdateArticleDto updateArticleDto = new UpdateArticleDto(notUpdateArticle.getId(), null, newArticleContent);
+        articleService.updateArticle(username,updateArticleDto);
+        Article updateArticle = articleService.findArticleById(notUpdateArticle.getId());
+        String actualArticleName = updateArticle.getNameArticle();
+        String actualArticleContent = getArticleTextForTesting(updateArticle);
+        Assertions.assertEquals(initialArticleName, actualArticleName);
+        Assertions.assertEquals(newArticleContent, actualArticleContent);
+        articleService.deleteArticle(username,updateArticle.getId());
+        profileServices.deleteUser(user);
+    }
+
+    @Test
+    public void whenUseTheMethodWithUserWhoIsNotTheOwnerOfTheArticle_thanShouldGetModifiedArticleWithNewArticleName() {
+        User user = createEmptyTestUser();
+        String username = user.getUsername();
+        String initialArticleName = "Car: Porsche 911";
+        String initialArticleContent = "Porsche 911 — общее название семейства спортивных автомобилей и автомобилей категории GT, выпускающихся компанией немецкой Porsche AG с 1965 года по настоящее время.";
+        CreateArticleDto createArticleDtoForThirdArticle = new CreateArticleDto(initialArticleName, initialArticleContent);
+        articleService.addArticle(username, createArticleDtoForThirdArticle);
+        String usernameForNewUser = "newTestUser";
+        String passwordForNewUser = "12345";
+        UserRegistrationRequest userRequest = new UserRegistrationRequest(usernameForNewUser, passwordForNewUser);
+        profileServices.createUser(userRequest);
+        user = profileServices.refreshUserData(user);
+        Article notUpdateArticle = user.getArticles().stream().filter(articleFromList -> articleFromList.getNameArticle().equals(initialArticleName)).findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
+        UpdateArticleDto updateArticleDto = new UpdateArticleDto(notUpdateArticle.getId(), null, null);
+        Assertions.assertThrows(AccessException.class,() -> articleService.updateArticle(usernameForNewUser,updateArticleDto));
+        articleService.deleteArticle(username,notUpdateArticle.getId());
+        profileServices.deleteUser(user);
+        profileServices.deleteUserByUsername(usernameForNewUser);
+    }
+
+    @Test
+    public void whenUseMethodDeleteArticle_thanShouldGetExceptionNotFoundArticleBecauseArticleAlreadyDelete() {
+        User user = createEmptyTestUser();
+        String username = user.getUsername();
+        String initialArticleName = "Car: Porsche 911";
+        String initialArticleContent = "Porsche 911 — общее название семейства спортивных автомобилей и автомобилей категории GT, выпускающихся компанией немецкой Porsche AG с 1965 года по настоящее время.";
+        CreateArticleDto createArticleDtoForThirdArticle = new CreateArticleDto(initialArticleName, initialArticleContent);
+        articleService.addArticle(username, createArticleDtoForThirdArticle);
+        user = profileServices.refreshUserData(user);
+        Article article = user.getArticles().stream().findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
+        UUID articleId = article.getId();
+        articleService.deleteArticle(username, articleId);
+        Assertions.assertThrows(NotFoundArticleException.class, () -> articleService.findArticleById(articleId));
+        profileServices.deleteUser(user);
+    }
+
+    @Test
+    public void whenUseMethodDeleteArticleWithUserWhoIsNotTheOwnerOfTheArticle_thanShouldGetExceptionAccessException() {
+        User user = createEmptyTestUser();
+        String username = user.getUsername();
+        String initialArticleName = "Car: Porsche 911";
+        String initialArticleContent = "Porsche 911 — общее название семейства спортивных автомобилей и автомобилей категории GT, выпускающихся компанией немецкой Porsche AG с 1965 года по настоящее время.";
+        CreateArticleDto createArticleDtoForThirdArticle = new CreateArticleDto(initialArticleName, initialArticleContent);
+        articleService.addArticle(username, createArticleDtoForThirdArticle);
+        String usernameForNewUser = "newTestUser";
+        String passwordForNewUser = "12345";
+        UserRegistrationRequest userRequest = new UserRegistrationRequest(usernameForNewUser, passwordForNewUser);
+        profileServices.createUser(userRequest);
+        user = profileServices.refreshUserData(user);
+        Article article = user.getArticles().stream().findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
+        UUID articleId = article.getId();
+        Assertions.assertThrows(AccessException.class, () -> articleService.deleteArticle(usernameForNewUser, articleId));
+        articleService.deleteArticle(username, articleId);
+        profileServices.deleteUser(user);
+        profileServices.deleteUserByUsername(usernameForNewUser);
+    }
+
+
     private User createEmptyTestUser() {
         String username = "testUser";
         String password = "12345";
         UserRegistrationRequest userRequest = new UserRegistrationRequest(username, password);
         return profileServices.createUser(userRequest);
+    }
+
+    private String getArticleTextForTesting(Article article) {
+        return yaCloudService.getArticleTextByUrl(article.getUrl());
     }
 
 }

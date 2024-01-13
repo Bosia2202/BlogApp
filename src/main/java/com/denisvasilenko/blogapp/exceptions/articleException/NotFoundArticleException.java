@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.exceptions;
+package com.denisvasilenko.blogapp.exceptions.articleException;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

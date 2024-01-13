@@ -1,4 +1,6 @@
 package com.denisvasilenko.blogapp.DTO.ArticleDto;
 
-public record UpdateArticleDto(String newArticleName,String newArticleContent) {
+import java.util.UUID;
+
+public record UpdateArticleDto(UUID articleId, String newArticleName, String newArticleContent) {
 }
