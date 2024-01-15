@@ -4,9 +4,8 @@ import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.config.PasswordEncoderConfig;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
-import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExist;
+import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
 import com.denisvasilenko.blogapp.models.User;
-import com.denisvasilenko.blogapp.services.ProfileServices;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -45,7 +44,7 @@ public class ProfileServiceTest {
     public void whenUserNameNotUnique_thanShouldGetNotUniqueUsernameException() {
         UserRegistrationRequest userRequest = new UserRegistrationRequest("testUser", "12345");
         profileServices.createUser(userRequest);
-        Assertions.assertThrows(UserAlreadyExist.class, () -> profileServices.createUser(userRequest));
+        Assertions.assertThrows(UserAlreadyExistException.class, () -> profileServices.createUser(userRequest));
         deleteTestUser();
     }
 

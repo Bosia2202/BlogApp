@@ -32,11 +32,10 @@ public class ArticleController {
         return articleService.addArticle(principal.getName(), createArticleDto);
     }
 
-//    @PatchMapping("/{author}/{articleName}")
-//    public ResponseEntity<String> patchPost (@PathVariable String author, @PathVariable String articleName, @RequestBody UpdateArticleDto updateArticleDto, Principal principal) {
-//        return articleService.updateArticle(author,principal.getName(),articleName,updateArticleDto);
-//    }
-//    TODO:Снять скобки
+    @PatchMapping("/{author}/{articleName}")
+    public ResponseEntity<String> patchPost (@PathVariable String author, @PathVariable String articleName, @RequestBody UpdateArticleDto updateArticleDto, Principal principal) {
+        return articleService.updateArticle(author,principal.getName(),articleName,updateArticleDto);
+    }
 
     @DeleteMapping("/{author}/{articleName}")
     public ResponseEntity<String> deletePost (@PathVariable UUID articleId, Principal principal){

@@ -1,10 +1,11 @@
 package com.denisvasilenko.blogapp.controlers;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
-import com.denisvasilenko.blogapp.DTO.SearchQueryDto;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoDto;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
-import com.denisvasilenko.blogapp.exceptions.AppError;
+import com.denisvasilenko.blogapp.exceptions.ExceptionDto;
+import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
+import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
+import com.denisvasilenko.blogapp.exceptions.userException.UserDeletionException;
 import com.denisvasilenko.blogapp.services.ProfileServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,5 +56,26 @@ public class UserController {
     public ResponseEntity<String> deleteUser(Principal principal) {
         profileServices.deleteUserByUsername(principal.getName());
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ExceptionDto> notFoundUserExceptionResponseEntity(NotFoundUserException exception){
+        ExceptionDto response = new ExceptionDto(exception.getMessage(),
+                exception.getTimestamp());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ExceptionDto> userAlreadyExistExceptionResponseEntity(UserAlreadyExistException exception){
+        ExceptionDto response = new ExceptionDto(exception.getMessage(),
+                exception.getTimestamp());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ExceptionDto> userDeletionExceptionResponseEntity(UserDeletionException exception){
+        ExceptionDto response = new ExceptionDto(exception.getMessage(),
+                exception.getTimestamp());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }

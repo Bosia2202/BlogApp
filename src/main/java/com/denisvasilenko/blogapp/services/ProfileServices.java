@@ -6,7 +6,7 @@ import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoDto;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.config.PasswordEncoderConfig;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
-import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExist;
+import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
 import com.denisvasilenko.blogapp.exceptions.userException.UserDeletionException;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
@@ -57,7 +57,7 @@ public class ProfileServices implements UserDetailsService {
         return userRepository.save(user);
         }
         catch (DataIntegrityViolationException dataIntegrityViolationException) {
-            throw new UserAlreadyExist(userRegistrationRequest.username());
+            throw new UserAlreadyExistException(userRegistrationRequest.username());
         }
     }
 
