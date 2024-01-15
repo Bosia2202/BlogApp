@@ -42,7 +42,7 @@ public class AuthService {
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
-    public ResponseEntity<?> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
+    public ResponseEntity<?> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
         User user = profileServices.createUser(userRegistrationRequest);
         return ResponseEntity.ok(new UserRegistrationResponse(user.getId(),user.getUsername()));
     }

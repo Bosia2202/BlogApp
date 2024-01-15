@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.repositories;
+package com.denisvasilenko.blogapp.services;
 
 import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
@@ -54,7 +54,8 @@ public class ProfileServiceTest {
         User oldUser = createTestUser();
         String newPassword = "newTestPassword";
         UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(newPassword, null, null);
-        User actualUser = profileServices.updateUser(oldUser, userInfoUpdateDTO);
+        profileServices.updateUser(oldUser.getUsername(), userInfoUpdateDTO);
+        User actualUser = profileServices.refreshUserData(oldUser);
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
         Assertions.assertEquals(oldUser.getUsername(), actualUser.getUsername());
         Assertions.assertNotEquals(oldUser.getPassword(), actualUser.getPassword());
@@ -68,7 +69,8 @@ public class ProfileServiceTest {
         User oldUser = createTestUser();
         byte[] newAvatar = getImgBytesArray();
         UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(null, newAvatar, null);
-        User actualUser = profileServices.updateUser(oldUser, userInfoUpdateDTO);
+        profileServices.updateUser(oldUser.getUsername(), userInfoUpdateDTO);
+        User actualUser = profileServices.refreshUserData(oldUser);
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
         Assertions.assertEquals(oldUser.getUsername(), actualUser.getUsername());
         Assertions.assertEquals(oldUser.getPassword(), actualUser.getPassword());
@@ -82,7 +84,8 @@ public class ProfileServiceTest {
         User oldUser = createTestUser();
         String newUserDescription = "newUserDescription";
         UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(null, null, newUserDescription);
-        User actualUser = profileServices.updateUser(oldUser, userInfoUpdateDTO);
+        profileServices.updateUser(oldUser.getUsername(), userInfoUpdateDTO);
+        User actualUser = profileServices.refreshUserData(oldUser);
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
         Assertions.assertEquals(oldUser.getUsername(), actualUser.getUsername());
         Assertions.assertEquals(oldUser.getPassword(), actualUser.getPassword());

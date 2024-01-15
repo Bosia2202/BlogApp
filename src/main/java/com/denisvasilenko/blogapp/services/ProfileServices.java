@@ -71,8 +71,9 @@ public class ProfileServices implements UserDetailsService {
     }
 
     @Transactional
-    public User updateUser(User oldUser, UserInfoUpdateDTO userInfoUpdateDTO)
+    public void updateUser(String oldUserName, UserInfoUpdateDTO userInfoUpdateDTO)
     {
+     User oldUser = processingFoundUser(oldUserName,userRepository::findByUsername);
      User updateUser = oldUser.duplicatingUser();
      if(!oldUser.getPassword().equals(userInfoUpdateDTO.password()) && userInfoUpdateDTO.password()!=null) {
          updateUser.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userInfoUpdateDTO.password()));
@@ -83,7 +84,7 @@ public class ProfileServices implements UserDetailsService {
      if (oldUser.getProfileDescription() == null|| !oldUser.getProfileDescription().equals(userInfoUpdateDTO.profileDescription()) && userInfoUpdateDTO.profileDescription()!=null) {
          updateUser.setProfileDescription(userInfoUpdateDTO.profileDescription());
      }
-     return userRepository.save(updateUser);
+     userRepository.save(updateUser);
     }
 
     @Transactional
@@ -109,10 +110,6 @@ public class ProfileServices implements UserDetailsService {
         catch (Exception exception) {
             throw new UserDeletionException(username,exception.getMessage());
         }
-    }
-
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
     }
 
     @Override

@@ -1,9 +1,14 @@
 package com.denisvasilenko.blogapp.controlers;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
+import com.denisvasilenko.blogapp.DTO.SearchQueryDto;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoDto;
+import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.exceptions.AppError;
 import com.denisvasilenko.blogapp.services.ProfileServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -29,13 +34,26 @@ public class UserController {
     }
 
     @GetMapping("/profile/{userName}")
-    public UserInfoDto userInfo(@PathVariable ("userName") String userName) throws AppError {
-        return profileServices.userInfo(userName);
+    public ResponseEntity <UserInfoDto> userInfo(@PathVariable ("userName") String userName) {
+        UserInfoDto userInfo = profileServices.userInfo(userName);
+        return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
 
     @GetMapping("/info")
-    public UserInfoDto userInfo(Principal principal) throws AppError {
-        return profileServices.userInfo(principal.getName());
+    public ResponseEntity <UserInfoDto> userInfo(Principal principal) {
+        UserInfoDto userInfo = profileServices.userInfo(principal.getName());
+        return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
 
+    @PatchMapping("/info")
+    public ResponseEntity<String> updateUser(Principal principal, @RequestBody UserInfoUpdateDTO userInfoUpdateDTO) {
+        profileServices.updateUser(principal.getName(), userInfoUpdateDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/info")
+    public ResponseEntity<String> deleteUser(Principal principal) {
+        profileServices.deleteUserByUsername(principal.getName());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
