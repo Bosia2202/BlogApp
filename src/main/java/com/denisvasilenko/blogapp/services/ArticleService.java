@@ -38,7 +38,9 @@ public class ArticleService {
         this.yaCloudService = yaCloudService;
     }
 
-    public ArticleDto showArticle(Article article) {
+    public ArticleDto showArticle(String articleId) {
+        UUID articleUUID = UUID.fromString(articleId);
+        Article article = processingTheArticleFound(articleUUID,articleRepository::findById);
            return new ArticleDto (
                    article.getNameArticle(),
                    getArticleText(article),
@@ -85,8 +87,8 @@ public class ArticleService {
     }
 
     @Transactional
-    public ResponseEntity<String> updateArticle(@NotNull String currentUser, @NotNull UpdateArticleDto updateArticleDto) {
-           Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(currentUser,updateArticleDto.articleId());
+    public ResponseEntity<String> updateArticle(@NotNull String currentUser,String articleId ,@NotNull UpdateArticleDto updateArticleDto) {
+           Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(currentUser,UUID.fromString(articleId));
            if (updateArticleDto.newArticleName() != null) {
                article.setNameArticle(updateArticleDto.newArticleName());
                articleRepository.save(article);
@@ -101,8 +103,8 @@ public class ArticleService {
    }
 
     @Transactional
-    public ResponseEntity<String> deleteArticle(@NotNull String userNameByCurrentUser, @NotNull UUID articleId) {
-        Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(userNameByCurrentUser,articleId);
+    public ResponseEntity<String> deleteArticle(@NotNull String userNameByCurrentUser, @NotNull String articleId) {
+        Article article = checkingAccessRightsOfTheCurrentUserToModifyArticles(userNameByCurrentUser,UUID.fromString(articleId));
         yaCloudService.deleteArticle(article.getUrl());
         articleRepository.deleteById(article.getId());
         log.info("ARTICLE : " + article.getId() + " deleted");

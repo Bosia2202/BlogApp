@@ -52,12 +52,13 @@ public class ArticleServiceTest {
         CreateArticleDto createArticleDto = new CreateArticleDto(testArticleName, testArticleContent);
         articleService.addArticle(emptyUser.getUsername(), createArticleDto);
         Article actualArticle = articleService.findByArticleName(testArticleName);
+        String actualArticleId = actualArticle.getId().toString();
         Assertions.assertEquals(testArticleName, actualArticle.getNameArticle());
-        String actualTestArticleContent = articleService.showArticle(actualArticle).text();
+        String actualTestArticleContent = articleService.showArticle(actualArticleId).text();
         Assertions.assertEquals(testArticleContent, actualTestArticleContent);
         String actualUserOwnerForArticle = actualArticle.getUserOwner().getUsername();
         Assertions.assertEquals(emptyUser.getUsername(), actualUserOwnerForArticle);
-        articleService.deleteArticle(emptyUser.getUsername(), actualArticle.getId());
+        articleService.deleteArticle(emptyUser.getUsername(), actualArticle.getId().toString());
         profileServices.deleteUser(emptyUser);
     }
 
@@ -93,7 +94,7 @@ public class ArticleServiceTest {
         user = profileServices.refreshUserData(user);
         List<Article> articlesForDelete = user.getArticles();
         for (Article article : articlesForDelete) {
-            articleService.deleteArticle(user.getUsername(), article.getId());
+            articleService.deleteArticle(user.getUsername(), article.getId().toString());
         }
         profileServices.deleteUser(user);
     }
@@ -121,14 +122,14 @@ public class ArticleServiceTest {
         user = profileServices.refreshUserData(user);
         Article notUpdateArticle = user.getArticles().stream().filter(articleFromList -> articleFromList.getNameArticle().equals(initialArticleName)).findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
         String newArticleName = "Машина: Porsche 911";
-        UpdateArticleDto updateArticleDto = new UpdateArticleDto(notUpdateArticle.getId(), newArticleName, null);
-        articleService.updateArticle(username,updateArticleDto);
+        UpdateArticleDto updateArticleDto = new UpdateArticleDto(newArticleName, null);
+        articleService.updateArticle(username,notUpdateArticle.getId().toString(),updateArticleDto);
         Article updateArticle = articleService.findArticleById(notUpdateArticle.getId());
         String actualArticleName = updateArticle.getNameArticle();
         String actualArticleContent = getArticleTextForTesting(updateArticle);
         Assertions.assertEquals(newArticleName, actualArticleName);
         Assertions.assertEquals(initialArticleContent, actualArticleContent);
-        articleService.deleteArticle(username,updateArticle.getId());
+        articleService.deleteArticle(username,updateArticle.getId().toString());
         profileServices.deleteUser(user);
     }
 
@@ -143,14 +144,14 @@ public class ArticleServiceTest {
         user = profileServices.refreshUserData(user);
         Article notUpdateArticle = user.getArticles().stream().filter(articleFromList -> articleFromList.getNameArticle().equals(initialArticleName)).findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
         String newArticleContent = "Porsche 911 is the common name for a family of sports cars and GT cars produced by the German Porsche AG from 1965 to the present.";
-        UpdateArticleDto updateArticleDto = new UpdateArticleDto(notUpdateArticle.getId(), null, newArticleContent);
-        articleService.updateArticle(username,updateArticleDto);
+        UpdateArticleDto updateArticleDto = new UpdateArticleDto(null, newArticleContent);
+        articleService.updateArticle(username,notUpdateArticle.getId().toString(),updateArticleDto);
         Article updateArticle = articleService.findArticleById(notUpdateArticle.getId());
         String actualArticleName = updateArticle.getNameArticle();
         String actualArticleContent = getArticleTextForTesting(updateArticle);
         Assertions.assertEquals(initialArticleName, actualArticleName);
         Assertions.assertEquals(newArticleContent, actualArticleContent);
-        articleService.deleteArticle(username,updateArticle.getId());
+        articleService.deleteArticle(username,updateArticle.getId().toString());
         profileServices.deleteUser(user);
     }
 
@@ -168,9 +169,9 @@ public class ArticleServiceTest {
         profileServices.createUser(userRequest);
         user = profileServices.refreshUserData(user);
         Article notUpdateArticle = user.getArticles().stream().filter(articleFromList -> articleFromList.getNameArticle().equals(initialArticleName)).findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
-        UpdateArticleDto updateArticleDto = new UpdateArticleDto(notUpdateArticle.getId(), null, null);
-        Assertions.assertThrows(AccessException.class,() -> articleService.updateArticle(usernameForNewUser,updateArticleDto));
-        articleService.deleteArticle(username,notUpdateArticle.getId());
+        UpdateArticleDto updateArticleDto = new UpdateArticleDto(null, null);
+        Assertions.assertThrows(AccessException.class,() -> articleService.updateArticle(usernameForNewUser,notUpdateArticle.getId().toString(),updateArticleDto));
+        articleService.deleteArticle(username,notUpdateArticle.getId().toString());
         profileServices.deleteUser(user);
         profileServices.deleteUserByUsername(usernameForNewUser);
     }
@@ -186,7 +187,7 @@ public class ArticleServiceTest {
         user = profileServices.refreshUserData(user);
         Article article = user.getArticles().stream().findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
         UUID articleId = article.getId();
-        articleService.deleteArticle(username, articleId);
+        articleService.deleteArticle(username, articleId.toString());
         Assertions.assertThrows(NotFoundArticleException.class, () -> articleService.findArticleById(articleId));
         profileServices.deleteUser(user);
     }
@@ -206,8 +207,8 @@ public class ArticleServiceTest {
         user = profileServices.refreshUserData(user);
         Article article = user.getArticles().stream().findFirst().orElseThrow(() -> new NotFoundArticleException(initialArticleName));
         UUID articleId = article.getId();
-        Assertions.assertThrows(AccessException.class, () -> articleService.deleteArticle(usernameForNewUser, articleId));
-        articleService.deleteArticle(username, articleId);
+        Assertions.assertThrows(AccessException.class, () -> articleService.deleteArticle(usernameForNewUser, articleId.toString()));
+        articleService.deleteArticle(username, articleId.toString());
         profileServices.deleteUser(user);
         profileServices.deleteUserByUsername(usernameForNewUser);
     }

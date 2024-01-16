@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
+@RequestMapping("/user")
 @RestController
 public class UserController {
    private final ProfileServices profileServices;
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping("/profile/{userName}")
-    public ResponseEntity <UserInfoDto> userInfo(@PathVariable ("userName") String userName) {
+    public ResponseEntity <UserInfoDto> userInfoForAnotherUser(@PathVariable ("userName") String userName) {
         UserInfoDto userInfo = profileServices.userInfo(userName);
         return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
