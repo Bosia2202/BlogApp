@@ -22,20 +22,8 @@ public class UserController {
     public UserController(ProfileServices profileServices) {
         this.profileServices = profileServices;
     }
-    @GetMapping("/admin")
-    public String admin(){
-        return "This is admin page";
-    }
-    @GetMapping("/test")
-    public String test(){
-        return "test";
-    }
-    @GetMapping("/logout")
-    public String exit(){
-        return "You are exited";
-    }
 
-    @GetMapping("/profile/{userName}")
+    @GetMapping("/{userName}")
     public ResponseEntity <UserInfoDto> userInfoForAnotherUser(@PathVariable ("userName") String userName) {
         UserInfoDto userInfo = profileServices.userInfo(userName);
         return new ResponseEntity<>(userInfo, HttpStatus.OK);

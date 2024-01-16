@@ -88,7 +88,6 @@ public class ArticleController {
         return new ResponseEntity<>("InternalServerError", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-
     @ExceptionHandler
     private ResponseEntity<ExceptionDto> accessExceptionResponseEntity(AccessException exception){
         ExceptionDto response = new ExceptionDto(exception.getMessage(),
