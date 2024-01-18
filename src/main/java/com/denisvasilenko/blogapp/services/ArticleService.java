@@ -59,7 +59,7 @@ public class ArticleService {
     }
 
     public List<Article> findAllArticlesByArticleName(String articleName) {
-        return articleRepository.findAllByNameArticle(articleName);
+        return articleRepository.findAllByNameArticleContainingIgnoreCaseOrderByDateOfCreation(articleName);
     }
 
     @Transactional
