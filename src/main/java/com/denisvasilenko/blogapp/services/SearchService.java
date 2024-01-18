@@ -18,8 +18,8 @@ import java.util.function.Function;
 @AllArgsConstructor
 public class SearchService {
 
-private ArticleRepository articleRepository;
-private UserRepository userRepository;
+private final ArticleRepository articleRepository;
+private final UserRepository userRepository;
 private final short ARTICLE_FILTER_ID = 0;
 private final short USER_FILTER_ID = 1;
     public ResponseEntity<?> search (SearchQueryDto searchQueryDto) {
