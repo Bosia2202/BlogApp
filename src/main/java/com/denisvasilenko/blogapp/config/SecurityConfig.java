@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/user/info").authenticated()
                         .requestMatchers(HttpMethod.PATCH,"/user/info").authenticated()
                         .requestMatchers(HttpMethod.DELETE,"/user/info").authenticated()
+                        .requestMatchers(HttpMethod.POST,"/search").authenticated()
                         .anyRequest().permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

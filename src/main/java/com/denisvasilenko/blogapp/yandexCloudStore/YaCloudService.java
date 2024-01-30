@@ -17,7 +17,7 @@ import java.io.IOException;
 
 @Service
 @Log4j2
-public class YaCloudService{
+public class YaCloudService {
     private final AmazonS3 s3Client;
     public YaCloudService() {
         AWSCredentials credentials = new BasicAWSCredentials("YCAJExVGFzxJoYQ3X5rDuRWOX", "YCMqgcw71r3382pOr0m3wo-Y77gsdXXhZvSTdofp");

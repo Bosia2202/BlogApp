@@ -2,10 +2,12 @@ package com.denisvasilenko.blogapp.services;
 
 import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDtoPreview;
 import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
+import com.denisvasilenko.blogapp.DTO.UserDto.ResetPasswordDTO;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoDto;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.config.PasswordEncoderConfig;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
+import com.denisvasilenko.blogapp.exceptions.userException.ResetPasswordException;
 import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
 import com.denisvasilenko.blogapp.exceptions.userException.UserDeletionException;
 import com.denisvasilenko.blogapp.models.Article;
@@ -71,13 +73,10 @@ public class ProfileServices implements UserDetailsService {
     }
 
     @Transactional
-    public void updateUser(String oldUserName, UserInfoUpdateDTO userInfoUpdateDTO)
+    public void updateUser(String oldUserUsername, UserInfoUpdateDTO userInfoUpdateDTO)
     {
-     User oldUser = processingFoundUser(oldUserName,userRepository::findByUsername);
+     User oldUser = processingFoundUser(oldUserUsername,userRepository::findByUsername);
      User updateUser = oldUser.duplicatingUser();
-     if(!oldUser.getPassword().equals(userInfoUpdateDTO.password()) && userInfoUpdateDTO.password()!=null) {
-         updateUser.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userInfoUpdateDTO.password()));
-     }
      if (oldUser.getAvatarImg() == null || !Arrays.equals(oldUser.getAvatarImg(),userInfoUpdateDTO.avatarImg()) && userInfoUpdateDTO.avatarImg() != null) {
          updateUser.setAvatarImg(userInfoUpdateDTO.avatarImg());
      }
@@ -85,6 +84,17 @@ public class ProfileServices implements UserDetailsService {
          updateUser.setProfileDescription(userInfoUpdateDTO.profileDescription());
      }
      userRepository.save(updateUser);
+    }
+
+    @Transactional
+    public void resetPassword(String oldUserUsername, ResetPasswordDTO resetPasswordDTO){
+        User oldUser = processingFoundUser(oldUserUsername,userRepository::findByUsername);
+        User updateUser = oldUser.duplicatingUser();
+        if(passwordEncoderConfig.beanpasswordEncoder().matches(resetPasswordDTO.oldPassword(), oldUser.getPassword()) && resetPasswordDTO.newPassword() != null) {
+         updateUser.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(resetPasswordDTO.newPassword()));
+         userRepository.save(updateUser);
+        }
+        else throw new ResetPasswordException();
     }
 
     @Transactional
@@ -124,6 +134,7 @@ public class ProfileServices implements UserDetailsService {
         );
     }
 
+    @Transactional
     public UserInfoDto userInfo(String username) {
         User user = processingFoundUser(username,userRepository::findByUsername);
         return new UserInfoDto(user.getAvatarImg(),

@@ -1,9 +1,11 @@
 package com.denisvasilenko.blogapp.services;
 
 import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
+import com.denisvasilenko.blogapp.DTO.UserDto.ResetPasswordDTO;
 import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.config.PasswordEncoderConfig;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
+import com.denisvasilenko.blogapp.exceptions.userException.ResetPasswordException;
 import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
 import com.denisvasilenko.blogapp.models.User;
 import lombok.extern.log4j.Log4j2;
@@ -51,9 +53,10 @@ public class ProfileServiceTest {
     @Test
     public void whenUpdateUserChangingPassword_thanShouldGetUpdateUserWithNewPassword() {
         User oldUser = createTestUser();
+        String oldPassword = "12345";
         String newPassword = "newTestPassword";
-        UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(newPassword, null, null);
-        profileServices.updateUser(oldUser.getUsername(), userInfoUpdateDTO);
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO(oldPassword, newPassword);
+        profileServices.resetPassword(oldUser.getUsername(), resetPasswordDTO);
         User actualUser = profileServices.refreshUserData(oldUser);
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
         Assertions.assertEquals(oldUser.getUsername(), actualUser.getUsername());
@@ -64,10 +67,20 @@ public class ProfileServiceTest {
     }
 
     @Test
+    public void whenUpdateUserChangingPasswordWitchWrongPassword_thanShouldGetResetPasswordException() {
+        User oldUser = createTestUser();
+        String wrongPassword = "204164bvjgf";
+        String newPassword = "newTestPassword";
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO(wrongPassword, newPassword);
+        Assertions.assertThrows(ResetPasswordException.class,() -> profileServices.resetPassword(oldUser.getUsername(), resetPasswordDTO));
+        deleteTestUser();
+    }
+
+    @Test
     public void whenUpdateUserChangingAvatar_thanShouldGetUpdateUserWithNewAvatar() {
         User oldUser = createTestUser();
         byte[] newAvatar = getImgBytesArray();
-        UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(null, newAvatar, null);
+        UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(newAvatar, null);
         profileServices.updateUser(oldUser.getUsername(), userInfoUpdateDTO);
         User actualUser = profileServices.refreshUserData(oldUser);
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
@@ -82,7 +95,7 @@ public class ProfileServiceTest {
     public void whenUpdateUserChangingProfileDescription_thanShouldGetUpdateUserWithNewProfileDescription() {
         User oldUser = createTestUser();
         String newUserDescription = "newUserDescription";
-        UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(null, null, newUserDescription);
+        UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(null, newUserDescription);
         profileServices.updateUser(oldUser.getUsername(), userInfoUpdateDTO);
         User actualUser = profileServices.refreshUserData(oldUser);
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
