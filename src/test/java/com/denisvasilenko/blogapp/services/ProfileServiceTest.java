@@ -26,10 +26,8 @@ import java.nio.file.Paths;
 @SpringBootTest
 @Log4j2
 public class ProfileServiceTest {
-
     @Autowired
     private ProfileServices profileServices;
-
     @Autowired
     private PasswordEncoderConfig passwordEncoderConfig;
 
@@ -61,7 +59,6 @@ public class ProfileServiceTest {
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
         Assertions.assertEquals(oldUser.getUsername(), actualUser.getUsername());
         Assertions.assertNotEquals(oldUser.getPassword(), actualUser.getPassword());
-        Assertions.assertEquals(oldUser.getAvatarImg(), actualUser.getAvatarImg());
         Assertions.assertEquals(oldUser.getProfileDescription(), actualUser.getProfileDescription());
         deleteTestUser();
     }
@@ -77,31 +74,15 @@ public class ProfileServiceTest {
     }
 
     @Test
-    public void whenUpdateUserChangingAvatar_thanShouldGetUpdateUserWithNewAvatar() {
-        User oldUser = createTestUser();
-        byte[] newAvatar = getImgBytesArray();
-        UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(newAvatar, null);
-        profileServices.updateUser(oldUser.getUsername(), userInfoUpdateDTO);
-        User actualUser = profileServices.refreshUserData(oldUser);
-        Assertions.assertEquals(oldUser.getId(), actualUser.getId());
-        Assertions.assertEquals(oldUser.getUsername(), actualUser.getUsername());
-        Assertions.assertEquals(oldUser.getPassword(), actualUser.getPassword());
-        Assertions.assertArrayEquals(newAvatar,actualUser.getAvatarImg());
-        Assertions.assertEquals(oldUser.getProfileDescription(), actualUser.getProfileDescription());
-        deleteTestUser();
-    }
-
-    @Test
     public void whenUpdateUserChangingProfileDescription_thanShouldGetUpdateUserWithNewProfileDescription() {
         User oldUser = createTestUser();
         String newUserDescription = "newUserDescription";
-        UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(null, newUserDescription);
+        UserInfoUpdateDTO userInfoUpdateDTO = new UserInfoUpdateDTO(newUserDescription);
         profileServices.updateUser(oldUser.getUsername(), userInfoUpdateDTO);
         User actualUser = profileServices.refreshUserData(oldUser);
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
         Assertions.assertEquals(oldUser.getUsername(), actualUser.getUsername());
         Assertions.assertEquals(oldUser.getPassword(), actualUser.getPassword());
-        Assertions.assertEquals(oldUser.getAvatarImg(),actualUser.getAvatarImg());
         Assertions.assertEquals(newUserDescription,actualUser.getProfileDescription());
         deleteTestUser();
     }
@@ -139,13 +120,5 @@ public class ProfileServiceTest {
     private void deleteTestUser() {
         User currentUser = profileServices.findUserByUserName("testUser");
         profileServices.deleteUser(currentUser);
-    }
-    private byte[] getImgBytesArray() {
-        Path path = Paths.get("C:\\Users\\Denis\\Desktop\\898acf6ddef49b89be120c95c7935858.jpg");
-        try {
-            return Files.readAllBytes(path);
-        } catch (IOException ioException){
-            return null;
-        }
     }
 }

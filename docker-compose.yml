@@ -25,6 +25,20 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgreSqlDbData:/var/lib/postgresql/data
+
+  pgadmin:
+    restart: always
+    container_name: pgadmin
+    image: elestio/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@email.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_LISTEN_PORT: 5050
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+
 volumes:
   postgreSqlDbData:
 

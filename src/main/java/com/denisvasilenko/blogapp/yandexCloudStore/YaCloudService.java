@@ -19,6 +19,7 @@ import java.io.IOException;
 @Log4j2
 public class YaCloudService {
     private final AmazonS3 s3Client;
+
     public YaCloudService() {
         AWSCredentials credentials = new BasicAWSCredentials("YCAJExVGFzxJoYQ3X5rDuRWOX", "YCMqgcw71r3382pOr0m3wo-Y77gsdXXhZvSTdofp");
         this.s3Client = AmazonS3ClientBuilder.standard()
@@ -43,7 +44,6 @@ public class YaCloudService {
             throw new CloudArticleTextDoesntCreatedRuntimeExceptions(cloudUploadRequest.getArticleName(),"CloudUploadRequest is wrong");
         }
     }
-
 
     public String getArticleTextByUrl(String url) {
         UrlParser urlParser = new UrlParser();

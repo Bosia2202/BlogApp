@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 
 public record UserInfoDto(
-    byte[] avatarImg,
     String username,
     String profileDescription,
     List<ArticleDtoPreview> articles) {
@@ -18,20 +17,17 @@ public record UserInfoDto(
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserInfoDto that = (UserInfoDto) o;
-        return Arrays.equals(avatarImg, that.avatarImg) && Objects.equals(username, that.username) && Objects.equals(profileDescription, that.profileDescription) && Objects.equals(articles, that.articles);
+        return Objects.equals(username, that.username) && Objects.equals(profileDescription, that.profileDescription) && Objects.equals(articles, that.articles);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(username, profileDescription, articles);
-        result = 31 * result + Arrays.hashCode(avatarImg);
-        return result;
+        return Objects.hash(username, profileDescription, articles);
     }
 
     @Override
     public String toString() {
         return "UserInfoDto {" +
-                "avatarImg = " + Arrays.toString(avatarImg) +
                 ", username = '" + username + '\'' +
                 ", profileDescription = '" + profileDescription + '\'' +
                 ", articles = " + articles +

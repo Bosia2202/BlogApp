@@ -77,9 +77,6 @@ public class ProfileServices implements UserDetailsService {
     {
      User oldUser = processingFoundUser(oldUserUsername,userRepository::findByUsername);
      User updateUser = oldUser.duplicatingUser();
-     if (oldUser.getAvatarImg() == null || !Arrays.equals(oldUser.getAvatarImg(),userInfoUpdateDTO.avatarImg()) && userInfoUpdateDTO.avatarImg() != null) {
-         updateUser.setAvatarImg(userInfoUpdateDTO.avatarImg());
-     }
      if (oldUser.getProfileDescription() == null|| !oldUser.getProfileDescription().equals(userInfoUpdateDTO.profileDescription()) && userInfoUpdateDTO.profileDescription()!=null) {
          updateUser.setProfileDescription(userInfoUpdateDTO.profileDescription());
      }
@@ -137,7 +134,7 @@ public class ProfileServices implements UserDetailsService {
     @Transactional
     public UserInfoDto userInfo(String username) {
         User user = processingFoundUser(username,userRepository::findByUsername);
-        return new UserInfoDto(user.getAvatarImg(),
+        return new UserInfoDto(
                     user.getUsername(),
                     user.getProfileDescription(),
                     user.getArticles().stream()

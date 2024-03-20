@@ -24,8 +24,6 @@ public class User {
     private String username;
     @Column(name = "password")
     private String password;
-    @Column(name = "avatarImg",columnDefinition = "bytea")
-    private byte[] avatarImg;
     @Column(name = "profileDescription")
     private String profileDescription;
     @OneToMany(mappedBy = "userOwner", cascade = CascadeType.ALL)
@@ -50,15 +48,12 @@ public class User {
         return  Objects.equals(id, user.id) &&
                 Objects.equals(username, user.username) &&
                 Objects.equals(password, user.password) &&
-                Arrays.equals(avatarImg, user.avatarImg) &&
                 Objects.equals(profileDescription, user.profileDescription);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, username, password, profileDescription);
-        result = 31 * result + Arrays.hashCode(avatarImg);
-        return result;
+        return Objects.hash(id, username, password, profileDescription);
     }
 
     public User duplicatingUser() {
@@ -66,7 +61,6 @@ public class User {
         duplicateUser.setId(this.id);
         duplicateUser.setUsername(this.username);
         duplicateUser.setPassword(this.password);
-        duplicateUser.setAvatarImg(this.avatarImg);
         duplicateUser.setProfileDescription(this.profileDescription);
         duplicateUser.setArticles(this.articles);
         duplicateUser.setRoleCollection(this.roleCollection);

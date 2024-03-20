@@ -51,7 +51,7 @@ private final short USER_FILTER_ID = 1;
 
     private List<UserDtoSearchPreview> convertFoundUserListToUserDtoForSearch(String searchParam, Function<String, List<User>> finder) {
         return finder.apply(searchParam).stream().map(user -> {
-          return new UserDtoSearchPreview(user.getUsername(), user.getAvatarImg());
+          return new UserDtoSearchPreview(user.getUsername());
         }).toList();
     }
 }
