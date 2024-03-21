@@ -1,7 +1,6 @@
 package com.denisvasilenko.blogapp.models;
 
-import com.amazonaws.services.appstream.model.Session;
-import com.denisvasilenko.blogapp.repositories.UserRepository;
+
 import jakarta.persistence.*;
 import lombok.*;
 

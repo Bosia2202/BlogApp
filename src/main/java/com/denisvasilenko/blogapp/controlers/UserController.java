@@ -6,7 +6,6 @@ import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.exceptions.ExceptionDto;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.exceptions.userException.ResetPasswordException;
-import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
 import com.denisvasilenko.blogapp.exceptions.userException.UserDeletionException;
 import com.denisvasilenko.blogapp.services.ProfileServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +55,7 @@ public class UserController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<ExceptionDto> ResetPasswordException(ResetPasswordException exception){
+    private ResponseEntity<ExceptionDto> resetPasswordException(ResetPasswordException exception){
         ExceptionDto response = new ExceptionDto(exception.getMessage(),
                 exception.getTimestamp());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

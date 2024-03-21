@@ -9,14 +9,12 @@ import com.denisvasilenko.blogapp.exceptions.articleException.NotFoundArticleExc
 import com.denisvasilenko.blogapp.exceptions.cloud.*;
 import com.denisvasilenko.blogapp.exceptions.urlParser.NotValidLinkRuntimeException;
 import com.denisvasilenko.blogapp.exceptions.urlParser.UrlHaveSpecialSymbolRuntimeException;
-import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
-import java.util.UUID;
 
 @RequestMapping("/article")
 @RestController
