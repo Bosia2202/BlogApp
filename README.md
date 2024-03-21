@@ -1,6 +1,6 @@
-# **Backend-сервис для обмена статьями "Blogapp"**
+# **Backend-сервис для обмена статьями "Polonius"**
 ## **Описание**
-***BlogApp*** представляет собой полноценный backend-сервис для ведения блогов и публикации статей. Этот pet-проект призван продемонстрировать навыки работы с современными технологиями и архитектурными решениями. Основные особенности проекта:
+***Polonius*** представляет собой полноценный backend-сервис для ведения блогов и публикации статей. Этот pet-проект призван продемонстрировать навыки работы с современными технологиями и архитектурными решениями. Основные особенности проекта:
 
 ![java:17](https://img.shields.io/badge/Java-17-red?style=for-the-badge&logo=java&labelColor=EEEBEB&color=C91B15
 ) ![Docker:4.28.0](https://img.shields.io/badge/Docker-4.28.0-blue?style=for-the-badge&logo=docker&labelColor=EEEBEB
@@ -18,20 +18,11 @@
 
 **Важно!!! Для того чтобы приложение работало у вас должен быть установлен Docker, в противном случае приложение работать не будет.**
 
-**Шаг 1**. Скачайте и установите необходимые образы:
+**Шаг 1**. Выполните авторизацию в Docker
 1. Откройте командную строку или терминал на вашем компьютере.
 2. Авторизуйтесь в своей учетной записи Docker Hub:
  ```shell
 docker login
-```
-3. Введите следующую команду для скачивания образа blogapp-server:
-   
-```shell
-docker pull bosia/blogapp-server
-```
-4. Таким же образом скачайте образ postgres:
-```shell
-docker pull bosia/postgres
 ```
 **Шаг 2**. Создайте docker-compose.yml в любой удобной для вас директори и впишите туда следующий код:
 ```yml
@@ -39,7 +30,7 @@ version: '3'
 services:
   server:
     restart: always
-    image: bosia/blogapp-server
+    image: bosia/blogapp-server:1.1
     ports:
       - "8080:8080"
     environment:
@@ -51,7 +42,7 @@ services:
   postgreSqlDb:
     restart: on-failure
     container_name: postgreSqlDb
-    image: bosia/postgres
+    image: postgres
     ports:
       - "5432:5432"
     environment:
@@ -59,7 +50,21 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - postgreSqlDbData:/var/lib/postgresql/data
+      - postgreSqlDbData:/var/lib/postgresql/
+    
+  pgadmin:
+   restart: always
+   container_name: pgadmin
+   image: elestio/pgadmin
+   environment:
+     PGADMIN_DEFAULT_EMAIL: admin@email.com
+     PGADMIN_DEFAULT_PASSWORD: admin
+     PGADMIN_LISTEN_PORT: 5050
+   ports:
+     - "5050:5050"
+   volumes:
+     - ./servers.json:/pgadmin4/servers.json
+      
 volumes:
   postgreSqlDbData:
 ```
@@ -76,15 +81,40 @@ docker-compose up -d
 ```
 **Шаг 4** Поключение базы данных к pg4.
 
-Перейдите по адресу: ``http://localhost:5050/``
+1. Перейдите по адресу: ``http://localhost:5050/``
 
-Введите email и пароль:
+2. Введите email и пароль:
 
-*Email*: admin@email.com
+    + *Email*: admin@email.com
 
-*Пароль*: admin
+    + *Пароль*: admin
+3. Подключение базы данных к pg4
 
-**Установка завершена**
++ Перейдите во вкладку "Add new Server".
++  После чего задайте любое имя во вкладке genеral. 
++  Далее перейдите во вкладку connection. Вам нужно вписать ip-адресс вашей базы данных, его можно получить следующим способом. Откройте консоль и введите команду:
+```Shell
+docker ps 
+```
+У вас должна появиться информация о ваших контейнерах. Например:
+```shell
+CONTAINER ID   IMAGE             COMMAND                  CREATED        STATUS         PORTS                                     NAMES
+bf01e25b2905   blogapp-server    "java -jar ./app.jar"    31 hours ago   Up 5 minutes   0.0.0.0:8080->8080/tcp                    app_backend
+77e71434ade2   elestio/pgadmin   "/entrypoint.sh"         31 hours ago   Up 4 hours     80/tcp, 443/tcp, 0.0.0.0:5050->5050/tcp   pgadmin
+c4536e7ae490   postgres          "docker-entrypoint.s…"   31 hours ago   Up 5 minutes   0.0.0.0:5432->5432/tcp                    postgreSqlDb
+
+```
++ Скопируйте CONTAINER ID у Image postgres.
++ Введите следующую команду
+```Shell
+docker inspect <Вставьте сюда Container Id>    
+```
++ Во вкладке Networks найдите значение IPaddress, скопируйте его и вставьте в pg4
++ Введите в поле Username значение postgres
++ В поле Password также введите значение postgres 
++ Нажмите кнопку Save
+
+**Установка завершена, приложение готово к работе**
 
 ## **Использование back-end сервиса**
 Процесс работы с сервисом будет описан через инструкцию, отражающую каждый шаг общения с приложением.
