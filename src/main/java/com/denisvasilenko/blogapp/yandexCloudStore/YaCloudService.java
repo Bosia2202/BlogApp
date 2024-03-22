@@ -24,7 +24,9 @@ public class YaCloudService {
         AWSCredentials credentials = new BasicAWSCredentials("YCAJExVGFzxJoYQ3X5rDuRWOX", "YCMqgcw71r3382pOr0m3wo-Y77gsdXXhZvSTdofp");
         this.s3Client = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withEndpointConfiguration(new AmazonS3ClientBuilder.EndpointConfiguration("storage.yandexcloud.net", "ru-central1"))
+                .withEndpointConfiguration(
+                        new AmazonS3ClientBuilder.EndpointConfiguration(
+                                "storage.yandexcloud.net", "ru-central1"))
                 .build();
         log.info("S3Client created and connected to YandexObject");
     }
