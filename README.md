@@ -1,6 +1,6 @@
-# **Backend-сервис для обмена статьями "Polonius"**
+# **Backend-сервис для обмена статьями "BlogApp"**
 ## **Описание**
-***Polonius*** представляет собой полноценный backend-сервис для ведения блогов и публикации статей. Этот pet-проект призван продемонстрировать навыки работы с современными технологиями и архитектурными решениями. Основные особенности проекта:
+***BlogApp*** представляет собой полноценный backend-сервис для ведения блогов и публикации статей. Этот pet-проект призван продемонстрировать навыки работы с современными технологиями и архитектурными решениями. Основные особенности проекта:
 
 ![java:17](https://img.shields.io/badge/Java-17-red?style=for-the-badge&logo=java&labelColor=EEEBEB&color=C91B15
 ) ![Docker:4.28.0](https://img.shields.io/badge/Docker-4.28.0-blue?style=for-the-badge&logo=docker&labelColor=EEEBEB
@@ -109,7 +109,7 @@ c4536e7ae490   postgres          "docker-entrypoint.s…"   31 hours ago   Up 5 
 ```Shell
 docker inspect <Вставьте сюда Container Id>    
 ```
-+ Во вкладке Networks найдите значение IPaddress, скопируйте его и вставьте в pg4
++ Во вкладке NetWorks найдите значение IPaddress, скопируйте его и вставьте в pg4
 + Введите в поле Username значение postgres
 + В поле Password также введите значение postgres 
 + Нажмите кнопку Save
@@ -176,6 +176,7 @@ ___
 ***URL-адрес запроса:*** ```http://localhost:8080/user/resetPassword```
 
 ***Тип запроса:*** POST
+
 ***Пример ответа:***
 ```JSON
 {
@@ -209,6 +210,7 @@ ___
 ***URL-адрес запроса:*** ```http://localhost:8080/user/info```
 
 ***Тип запроса:*** GET
+
 ***Пример ответа:***
 ```JSON
 {
@@ -339,7 +341,7 @@ ___
 ```JSON
 [
   {
-    "username": "Scot Rider"
+    "username": "<имя пользователя>"
   }
 ]
 ```
