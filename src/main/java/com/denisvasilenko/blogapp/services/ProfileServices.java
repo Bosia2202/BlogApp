@@ -41,88 +41,84 @@ public class ProfileServices implements UserDetailsService {
     private final PasswordEncoderConfig passwordEncoderConfig;
 
     @Autowired
-    public ProfileServices(UserRepository userRepository,RoleService roleService,PasswordEncoderConfig passwordEncoderConfig) {
+    public ProfileServices(UserRepository userRepository, RoleService roleService, PasswordEncoderConfig passwordEncoderConfig) {
         this.userRepository = userRepository;
-        this.roleService=roleService;
-        this.passwordEncoderConfig=passwordEncoderConfig;
+        this.roleService = roleService;
+        this.passwordEncoderConfig = passwordEncoderConfig;
     }
 
     @Transactional
-    public User createUser(UserRegistrationRequest userRegistrationRequest){
+    public User createUser(UserRegistrationRequest userRegistrationRequest) {
         try {
-        User user = new User();
-        user.setUsername(userRegistrationRequest.username());
-        user.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userRegistrationRequest.password()));
-        List<Article> articles = new ArrayList<>();
-        user.setArticles(articles);
-        user.setRoleCollection(List.of(roleService.getUserRole()));
-        return userRepository.save(user);
-        }
-        catch (DataIntegrityViolationException dataIntegrityViolationException) {
+            User user = new User();
+            user.setUsername(userRegistrationRequest.username());
+            user.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userRegistrationRequest.password()));
+            List<Article> articles = new ArrayList<>();
+            user.setArticles(articles);
+            user.setRoleCollection(List.of(roleService.getUserRole()));
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException dataIntegrityViolationException) {
             throw new UserAlreadyExistException(userRegistrationRequest.username());
         }
     }
 
     @Transactional
     public User findUserById(Long id) {
-        return processingFoundUser(id,userRepository::findById);
-    }
-    @Transactional
-    public User findUserByUserName(String name){
-        return processingFoundUser(name,userRepository::findByUsername);
+        return processingFoundUser(id, userRepository::findById);
     }
 
     @Transactional
-    public void updateUser(String oldUserUsername, UserInfoUpdateDTO userInfoUpdateDTO)
-    {
-     User oldUser = processingFoundUser(oldUserUsername,userRepository::findByUsername);
-     User updateUser = oldUser.duplicatingUser();
-     if (oldUser.getProfileDescription() == null|| !oldUser.getProfileDescription().equals(userInfoUpdateDTO.profileDescription()) && userInfoUpdateDTO.profileDescription()!=null) {
-         updateUser.setProfileDescription(userInfoUpdateDTO.profileDescription());
-     }
-     userRepository.save(updateUser);
+    public User findUserByUserName(String name) {
+        return processingFoundUser(name, userRepository::findByUsername);
     }
 
     @Transactional
-    public void resetPassword(String oldUserUsername, ResetPasswordDTO resetPasswordDTO){
-        User oldUser = processingFoundUser(oldUserUsername,userRepository::findByUsername);
+    public void updateUser(String oldUserUsername, UserInfoUpdateDTO userInfoUpdateDTO) {
+        User oldUser = processingFoundUser(oldUserUsername, userRepository::findByUsername);
         User updateUser = oldUser.duplicatingUser();
-        if(passwordEncoderConfig.beanpasswordEncoder().matches(resetPasswordDTO.oldPassword(), oldUser.getPassword()) && resetPasswordDTO.newPassword() != null) {
-         updateUser.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(resetPasswordDTO.newPassword()));
-         userRepository.save(updateUser);
+        if (oldUser.getProfileDescription() == null || !oldUser.getProfileDescription().equals(userInfoUpdateDTO.profileDescription()) && userInfoUpdateDTO.profileDescription() != null) {
+            updateUser.setProfileDescription(userInfoUpdateDTO.profileDescription());
         }
-        else throw new ResetPasswordException();
+        userRepository.save(updateUser);
+    }
+
+    @Transactional
+    public void resetPassword(String oldUserUsername, ResetPasswordDTO resetPasswordDTO) {
+        User oldUser = processingFoundUser(oldUserUsername, userRepository::findByUsername);
+        User updateUser = oldUser.duplicatingUser();
+        if (passwordEncoderConfig.beanpasswordEncoder().matches(resetPasswordDTO.oldPassword(), oldUser.getPassword()) && resetPasswordDTO.newPassword() != null) {
+            updateUser.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(resetPasswordDTO.newPassword()));
+            userRepository.save(updateUser);
+        } else throw new ResetPasswordException();
     }
 
     @Transactional
     public User refreshUserData(User user) {
-        return processingFoundUser(user.getId(),userRepository::findById);
+        return processingFoundUser(user.getId(), userRepository::findById);
     }
 
     @Transactional
     public void deleteUser(User user) {
         try {
             userRepository.deleteById(user.getId());
-        }
-        catch (Exception exception) {
-            throw new UserDeletionException(user.getUsername(),exception.getMessage());
+        } catch (Exception exception) {
+            throw new UserDeletionException(user.getUsername(), exception.getMessage());
         }
     }
 
     @Transactional
     public void deleteUserByUsername(String username) {
         try {
-        userRepository.deleteByUsername(username);
-        }
-        catch (Exception exception) {
-            throw new UserDeletionException(username,exception.getMessage());
+            userRepository.deleteByUsername(username);
+        } catch (Exception exception) {
+            throw new UserDeletionException(username, exception.getMessage());
         }
     }
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) {
-        User user = processingFoundUser(username,userRepository::findByUsername);
+        User user = processingFoundUser(username, userRepository::findByUsername);
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -133,18 +129,19 @@ public class ProfileServices implements UserDetailsService {
 
     @Transactional
     public UserInfoDto userInfo(String username) {
-        User user = processingFoundUser(username,userRepository::findByUsername);
+        User user = processingFoundUser(username, userRepository::findByUsername);
         return new UserInfoDto(
-                    user.getUsername(),
-                    user.getProfileDescription(),
-                    user.getArticles().stream()
-                            .map(article -> {
-                                return new ArticleDtoPreview(
-                                        article.getId(),
-                                        article.getNameArticle(),
-                                        article.getDateOfCreation(),
-                                        article.getLikes());})
-                            .toList());
+                user.getUsername(),
+                user.getProfileDescription(),
+                user.getArticles().stream()
+                        .map(article -> {
+                            return new ArticleDtoPreview(
+                                    article.getId(),
+                                    article.getNameArticle(),
+                                    article.getDateOfCreation(),
+                                    article.getLikes());
+                        })
+                        .toList());
     }
 
     private User processingFoundUser(Long searchParam, LongFunction<Optional<User>> finder) {

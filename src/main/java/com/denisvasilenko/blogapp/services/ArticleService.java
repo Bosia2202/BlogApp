@@ -8,8 +8,8 @@ import com.denisvasilenko.blogapp.exceptions.articleException.NotFoundArticleExc
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
 import com.denisvasilenko.blogapp.repositories.ArticleRepository;
-import com.denisvasilenko.blogapp.yandexCloudStore.DTO.CloudUploadRequest;
-import com.denisvasilenko.blogapp.yandexCloudStore.YaCloudService;
+import com.denisvasilenko.blogapp.cloudStore.DTO.CloudUploadRequest;
+import com.denisvasilenko.blogapp.cloudStore.YaCloudService;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

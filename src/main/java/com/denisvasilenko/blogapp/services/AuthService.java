@@ -30,20 +30,19 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
-    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
+    public JwtResponse createAuthToken(@RequestBody JwtRequest authRequest) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
-        }
-        catch (BadCredentialsException e){
-            return new ResponseEntity<>(new AppError(HttpStatus.UNAUTHORIZED.value(),"Uncorrected login or password"),HttpStatus.UNAUTHORIZED);
+        } catch (BadCredentialsException e) {
+            throw new AppError("Uncorrected login or password", HttpStatus.UNAUTHORIZED);
         }
         UserDetails userDetails = profileServices.loadUserByUsername(authRequest.getUsername());
-        String token= jwtTokenUtill.generateToken(userDetails);
-        return ResponseEntity.ok(new JwtResponse(token));
+        String token = jwtTokenUtill.generateToken(userDetails);
+        return new JwtResponse(token);
     }
 
-    public ResponseEntity<?> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
+    public UserRegistrationResponse createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest) {
         User user = profileServices.createUser(userRegistrationRequest);
-        return ResponseEntity.ok(new UserRegistrationResponse(user.getId(),user.getUsername()));
+        return new UserRegistrationResponse(user.getId(), user.getUsername());
     }
 }

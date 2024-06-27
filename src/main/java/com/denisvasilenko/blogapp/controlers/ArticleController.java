@@ -52,37 +52,7 @@ public class ArticleController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<String> cloudArticleTextDoesntCanReadRuntimeExceptionResponseEntity(CloudArticleTextDoesntCanReadRuntimeException exception){
-        return new ResponseEntity<>("InternalServerError", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<String> cloudArticleTextDoesntCreatedRuntimeExceptions(CloudArticleTextDoesntCreatedRuntimeExceptions exception){
-        return new ResponseEntity<>("InternalServerError", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<String> cloudArticleTextDoesntDeleteRuntimeException(CloudArticleTextDoesntDeleteRuntimeException exception){
-        return new ResponseEntity<>("InternalServerError", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<String> cloudArticleTextDoesntUpdateRuntimeException(CloudArticleTextDoesntUpdateRuntimeException exception){
-        return new ResponseEntity<>("InternalServerError", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<String> cloudConvertArticleTextContentToStringRuntimeException(CloudConvertArticleTextContentToStringRuntimeException exception){
-        return new ResponseEntity<>("InternalServerError", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<String> notValidLinkRuntimeException(NotValidLinkRuntimeException exception){
-        return new ResponseEntity<>("InternalServerError", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler
-    private ResponseEntity<String> urlHaveSpecialSymbolRuntimeException(UrlHaveSpecialSymbolRuntimeException exception){
+    private ResponseEntity<String> cloudArticleTextDoesntCanReadRuntimeExceptionResponseEntity(RuntimeException exception){
         return new ResponseEntity<>("InternalServerError", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

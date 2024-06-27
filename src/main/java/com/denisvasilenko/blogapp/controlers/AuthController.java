@@ -1,7 +1,9 @@
 package com.denisvasilenko.blogapp.controlers;
 
 import com.denisvasilenko.blogapp.DTO.JWTDto.JwtRequest;
+import com.denisvasilenko.blogapp.DTO.JWTDto.JwtResponse;
 import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
+import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationResponse;
 import com.denisvasilenko.blogapp.exceptions.ExceptionDto;
 import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
 import com.denisvasilenko.blogapp.services.AuthService;
@@ -22,12 +24,12 @@ public class AuthController {
     }
 
     @PostMapping("/auth")
-    public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
-      return authService.createAuthToken(authRequest);
+    public ResponseEntity<JwtResponse> createAuthToken(@RequestBody JwtRequest authRequest) {
+      return ResponseEntity.ok(authService.createAuthToken(authRequest));
     }
     @PostMapping("/registration")
-    public ResponseEntity<?> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
-     return authService.createNewUser(userRegistrationRequest);
+    public ResponseEntity<UserRegistrationResponse> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
+     return ResponseEntity.ok(authService.createNewUser(userRegistrationRequest));
     }
 
     @ExceptionHandler
@@ -36,4 +38,5 @@ public class AuthController {
                 exception.getTimestamp());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
 }

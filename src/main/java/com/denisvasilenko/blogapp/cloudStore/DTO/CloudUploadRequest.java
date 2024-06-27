@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.yandexCloudStore.DTO;
+package com.denisvasilenko.blogapp.cloudStore.DTO;
 
 import com.denisvasilenko.blogapp.models.User;
 import lombok.Getter;

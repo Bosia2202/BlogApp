@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.yandexCloudStore;
+package com.denisvasilenko.blogapp.cloudStore;
 import com.denisvasilenko.blogapp.exceptions.urlParser.NotValidLinkRuntimeException;
 import com.denisvasilenko.blogapp.exceptions.urlParser.UrlHaveSpecialSymbolRuntimeException;
 import lombok.Getter;
