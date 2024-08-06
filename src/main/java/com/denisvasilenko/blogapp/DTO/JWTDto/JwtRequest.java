@@ -1,9 +1,8 @@
-package com.denisvasilenko.blogapp.DTO.JWTDto;
+package com.denisvasilenko.blogapp.dto.jwtdto;
 
 public class JwtRequest {
     private String username;
     private String password;
-
 
     public String getUsername() {
         return username;

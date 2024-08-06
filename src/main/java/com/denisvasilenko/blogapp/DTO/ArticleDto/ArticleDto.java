@@ -1,11 +1,6 @@
-package com.denisvasilenko.blogapp.DTO.ArticleDto;
+package com.denisvasilenko.blogapp.dto.articledto;
 
 import java.time.LocalDate;
 
-public record ArticleDto(
-        String nameArticle,
-        String text,
-        int likes,
-        LocalDate dateOfCreation,
-        String Author) {
+public record ArticleDto(String nameArticle, String text, int likes, LocalDate dateOfCreation, String Author) {
 }

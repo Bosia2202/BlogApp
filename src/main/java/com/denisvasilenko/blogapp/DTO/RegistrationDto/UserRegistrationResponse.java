@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.DTO.RegistrationDto;
+package com.denisvasilenko.blogapp.dto.registrationdto;
 
 public class UserRegistrationResponse {
     Long id;

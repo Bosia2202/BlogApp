@@ -13,6 +13,7 @@ import java.util.UUID;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, UUID> {
     Optional<Article> findByNameArticle(String nameArticle);
+
     List<Article> findAllByNameArticleContainingIgnoreCaseOrderByDateOfCreation(String nameArticle);
 
     @Modifying

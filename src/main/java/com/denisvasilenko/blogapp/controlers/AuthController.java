@@ -1,9 +1,9 @@
 package com.denisvasilenko.blogapp.controlers;
 
-import com.denisvasilenko.blogapp.DTO.JWTDto.JwtRequest;
-import com.denisvasilenko.blogapp.DTO.JWTDto.JwtResponse;
-import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
-import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationResponse;
+import com.denisvasilenko.blogapp.dto.jwtdto.JwtRequest;
+import com.denisvasilenko.blogapp.dto.jwtdto.JwtResponse;
+import com.denisvasilenko.blogapp.dto.registrationdto.UserRegistrationRequest;
+import com.denisvasilenko.blogapp.dto.registrationdto.UserRegistrationResponse;
 import com.denisvasilenko.blogapp.exceptions.ExceptionDto;
 import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
 import com.denisvasilenko.blogapp.services.AuthService;
@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AuthController {
-   private final AuthService authService;
+    private final AuthService authService;
+
     @Autowired
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -25,15 +26,17 @@ public class AuthController {
 
     @PostMapping("/auth")
     public ResponseEntity<JwtResponse> createAuthToken(@RequestBody JwtRequest authRequest) {
-      return ResponseEntity.ok(authService.createAuthToken(authRequest));
+        return ResponseEntity.ok(authService.createAuthToken(authRequest));
     }
+
     @PostMapping("/registration")
-    public ResponseEntity<UserRegistrationResponse> createNewUser(@RequestBody UserRegistrationRequest userRegistrationRequest){
-     return ResponseEntity.ok(authService.createNewUser(userRegistrationRequest));
+    public ResponseEntity<UserRegistrationResponse> createNewUser(
+            @RequestBody UserRegistrationRequest userRegistrationRequest) {
+        return ResponseEntity.ok(authService.createNewUser(userRegistrationRequest));
     }
 
     @ExceptionHandler
-    private ResponseEntity<ExceptionDto> userAlreadyExistExceptionResponseEntity(UserAlreadyExistException exception){
+    private ResponseEntity<ExceptionDto> userAlreadyExistExceptionResponseEntity(UserAlreadyExistException exception) {
         ExceptionDto response = new ExceptionDto(exception.getMessage(),
                 exception.getTimestamp());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

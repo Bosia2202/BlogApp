@@ -1,13 +1,14 @@
 package com.denisvasilenko.blogapp.cloud;
 
-import com.denisvasilenko.blogapp.cloudStore.CloudStoreInterface;
+import com.denisvasilenko.blogapp.cloudstore.CloudStoreInterface;
+import com.denisvasilenko.blogapp.cloudstore.dto.CloudUploadRequest;
 import com.denisvasilenko.blogapp.exceptions.cloud.CloudArticleTextDoesntCanReadRuntimeException;
 import com.denisvasilenko.blogapp.exceptions.cloud.CloudArticleTextDoesntCreatedRuntimeExceptions;
 import com.denisvasilenko.blogapp.exceptions.cloud.CloudArticleTextDoesntUpdateRuntimeException;
 import com.denisvasilenko.blogapp.exceptions.urlParser.NotValidLinkRuntimeException;
 import com.denisvasilenko.blogapp.models.Article;
 import com.denisvasilenko.blogapp.models.User;
-import com.denisvasilenko.blogapp.cloudStore.DTO.CloudUploadRequest;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +70,8 @@ public class CloudStoreTest {
         User user = new User();
         LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket, articleName, null, user, date);
-        Assertions.assertThrows(CloudArticleTextDoesntCreatedRuntimeExceptions.class, () -> cloudStore.uploadText(cloudUploadRequest));
+        Assertions.assertThrows(CloudArticleTextDoesntCreatedRuntimeExceptions.class,
+                () -> cloudStore.uploadText(cloudUploadRequest));
     }
 
     @Test
@@ -80,13 +82,15 @@ public class CloudStoreTest {
         User user = new User();
         LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket, articleName, articleText, user, date);
-        Assertions.assertThrows(CloudArticleTextDoesntCreatedRuntimeExceptions.class, () -> cloudStore.uploadText(cloudUploadRequest));
+        Assertions.assertThrows(CloudArticleTextDoesntCreatedRuntimeExceptions.class,
+                () -> cloudStore.uploadText(cloudUploadRequest));
     }
 
     @Test
     public void whenPassInTheMethodGetArticleUrlWithDoesNotExistArticle_thanGetException() {
         String urlToDoesNotExistArticle = "https://blogapp.storage.yandexcloud.net/TestingKey";
-        Assertions.assertThrows(CloudArticleTextDoesntCanReadRuntimeException.class, () -> cloudStore.getArticleTextByUrl(urlToDoesNotExistArticle));
+        Assertions.assertThrows(CloudArticleTextDoesntCanReadRuntimeException.class,
+                () -> cloudStore.getArticleTextByUrl(urlToDoesNotExistArticle));
     }
 
     @Test
@@ -97,7 +101,8 @@ public class CloudStoreTest {
         LocalDate date = LocalDate.now();
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket, articleName, expectedText, user, date);
         Article article = cloudStore.uploadText(cloudUploadRequest);
-        Assertions.assertThrows(CloudArticleTextDoesntUpdateRuntimeException.class, () -> cloudStore.updateText(article.getUrl(), null));
+        Assertions.assertThrows(CloudArticleTextDoesntUpdateRuntimeException.class,
+                () -> cloudStore.updateText(article.getUrl(), null));
         cloudStore.deleteArticle(article.getUrl());
     }
 
@@ -137,7 +142,8 @@ public class CloudStoreTest {
         CloudUploadRequest cloudUploadRequest = new CloudUploadRequest(bucket, articleName, oldText, user, date);
         Article article = cloudStore.uploadText(cloudUploadRequest);
         cloudStore.deleteArticle(article.getUrl());
-        Assertions.assertThrows(CloudArticleTextDoesntCanReadRuntimeException.class, () -> cloudStore.getArticleTextByUrl(article.getUrl()));
+        Assertions.assertThrows(CloudArticleTextDoesntCanReadRuntimeException.class,
+                () -> cloudStore.getArticleTextByUrl(article.getUrl()));
     }
 
     @Test

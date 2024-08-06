@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.util.Date;
 
 @Getter
-public class CloudArticleTextDoesntCanReadRuntimeException extends RuntimeException{
+public class CloudArticleTextDoesntCanReadRuntimeException extends RuntimeException {
     private final String message;
     private final Date timestamp;
 

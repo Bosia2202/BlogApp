@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 @PropertySource("classpath:application.properties")
@@ -29,16 +28,15 @@ public class JwtTokenUtill {
     private Duration jwtLifeTime;
     private SecretKey key;
 
-    public String generateToken(UserDetails userDetails){
-        key= Keys.hmacShaKeyFor(secret.getBytes());
-        Map<String,Object> claims=new HashMap<>();
-        List<String> roleList=userDetails.getAuthorities().stream().map(
+    public String generateToken(UserDetails userDetails) {
+        key = Keys.hmacShaKeyFor(secret.getBytes());
+        Map<String, Object> claims = new HashMap<>();
+        List<String> roleList = userDetails.getAuthorities().stream().map(
                 GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-        claims.put("roles",roleList);
-
-        Date issuedDate=new Date();
-        Date expiredDate =new Date(issuedDate.getTime()+jwtLifeTime.toMillis());
+                .toList();
+        claims.put("roles", roleList);
+        Date issuedDate = new Date();
+        Date expiredDate = new Date(issuedDate.getTime() + jwtLifeTime.toMillis());
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
@@ -48,14 +46,15 @@ public class JwtTokenUtill {
                 .compact();
     }
 
-    public String getUsername(String token){
+    public String getUsername(String token) {
         return getAllClaimsFromToken(token).getSubject();
     }
-    public List<String> getRoles(String token){
-        return getAllClaimsFromToken(token).get("roles",List.class);
+
+    public List<String> getRoles(String token) {
+        return getAllClaimsFromToken(token).get("roles", List.class);
     }
 
-    private Claims getAllClaimsFromToken(String token){
+    private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()

@@ -11,7 +11,7 @@ public class UserAlreadyExistException extends RuntimeException {
     private final Date timestamp;
 
     public UserAlreadyExistException(String username) {
-        message = "User "+"'"+username+"'"+" already exist";
+        message = "User " + "'" + username + "'" + " already exist";
         this.timestamp = new Date();
     }
 }

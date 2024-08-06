@@ -1,35 +1,25 @@
 package com.denisvasilenko.blogapp.services;
 
-import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
-import com.denisvasilenko.blogapp.DTO.UserDto.ResetPasswordDTO;
-import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
-import com.denisvasilenko.blogapp.config.PasswordEncoderConfig;
+import com.denisvasilenko.blogapp.dto.registrationdto.UserRegistrationRequest;
+import com.denisvasilenko.blogapp.dto.userdto.ResetPasswordDTO;
+import com.denisvasilenko.blogapp.dto.userdto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.exceptions.userException.ResetPasswordException;
 import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
 import com.denisvasilenko.blogapp.models.User;
 import lombok.extern.log4j.Log4j2;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
-@RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @SpringBootTest
 @Log4j2
 public class ProfileServiceTest {
     @Autowired
     private ProfileServices profileServices;
-    @Autowired
-    private PasswordEncoderConfig passwordEncoderConfig;
 
     @Test
     public void whenCreateAndSaveUser_thanShouldGetCurrentUserUsingMethodFindByIdAndDeleteThem() {
@@ -69,7 +59,8 @@ public class ProfileServiceTest {
         String wrongPassword = "204164bvjgf";
         String newPassword = "newTestPassword";
         ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO(wrongPassword, newPassword);
-        Assertions.assertThrows(ResetPasswordException.class,() -> profileServices.resetPassword(oldUser.getUsername(), resetPasswordDTO));
+        Assertions.assertThrows(ResetPasswordException.class,
+                () -> profileServices.resetPassword(oldUser.getUsername(), resetPasswordDTO));
         deleteTestUser();
     }
 
@@ -83,31 +74,32 @@ public class ProfileServiceTest {
         Assertions.assertEquals(oldUser.getId(), actualUser.getId());
         Assertions.assertEquals(oldUser.getUsername(), actualUser.getUsername());
         Assertions.assertEquals(oldUser.getPassword(), actualUser.getPassword());
-        Assertions.assertEquals(newUserDescription,actualUser.getProfileDescription());
+        Assertions.assertEquals(newUserDescription, actualUser.getProfileDescription());
         deleteTestUser();
     }
 
     @Test
-    public void whenUseMethodFindUserByUserName_thanShouldGetUserWeAreLookingFor () {
-       User expectedUser = createTestUser();
-       String expectedUserUsername = expectedUser.getUsername();
-       User actualUser = profileServices.findUserByUserName(expectedUserUsername);
-       Assertions.assertEquals(expectedUser,actualUser);
-       profileServices.deleteUser(actualUser);
+    public void whenUseMethodFindUserByUserName_thanShouldGetUserWeAreLookingFor() {
+        User expectedUser = createTestUser();
+        String expectedUserUsername = expectedUser.getUsername();
+        User actualUser = profileServices.findUserByUserName(expectedUserUsername);
+        Assertions.assertEquals(expectedUser, actualUser);
+        profileServices.deleteUser(actualUser);
     }
 
     @Test
-    public void whenUseMethodFindUserByUserNameWhenUserDoesNotExist_thanShouldGetNotFoundUserException () {
+    public void whenUseMethodFindUserByUserNameWhenUserDoesNotExist_thanShouldGetNotFoundUserException() {
         String usernameThatDoesNotExist = "testUser";
-        Assertions.assertThrows(NotFoundUserException.class,() ->profileServices.findUserByUserName(usernameThatDoesNotExist));
+        Assertions.assertThrows(NotFoundUserException.class,
+                () -> profileServices.findUserByUserName(usernameThatDoesNotExist));
     }
 
     @Test
     public void whenWeDeleteUserByUsername_thanShouldDeleteUserFromDataBase() {
-       User expectedDeleteUser = createTestUser();
-       String username = expectedDeleteUser.getUsername();
-       profileServices.deleteUser(expectedDeleteUser);
-       Assertions.assertThrows(NotFoundUserException.class,() -> profileServices.findUserByUserName(username));
+        User expectedDeleteUser = createTestUser();
+        String username = expectedDeleteUser.getUsername();
+        profileServices.deleteUser(expectedDeleteUser);
+        Assertions.assertThrows(NotFoundUserException.class, () -> profileServices.findUserByUserName(username));
     }
 
     private User createTestUser() {

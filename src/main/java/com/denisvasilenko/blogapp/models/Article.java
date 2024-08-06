@@ -2,7 +2,9 @@ package com.denisvasilenko.blogapp.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -12,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name ="articles")
+@Table(name = "articles")
 public class Article {
     @Id
     @Column(name = "id")
@@ -27,14 +29,16 @@ public class Article {
     private int likes;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonBackReference
     private User userOwner;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Article article = (Article) o;
         return likes == article.likes &&
                 Objects.equals(id, article.id) &&

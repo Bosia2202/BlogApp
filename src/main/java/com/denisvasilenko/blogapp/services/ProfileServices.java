@@ -1,11 +1,11 @@
 package com.denisvasilenko.blogapp.services;
 
-import com.denisvasilenko.blogapp.DTO.ArticleDto.ArticleDtoPreview;
-import com.denisvasilenko.blogapp.DTO.RegistrationDto.UserRegistrationRequest;
-import com.denisvasilenko.blogapp.DTO.UserDto.ResetPasswordDTO;
-import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoDto;
-import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.config.PasswordEncoderConfig;
+import com.denisvasilenko.blogapp.dto.articledto.ArticleDtoPreview;
+import com.denisvasilenko.blogapp.dto.registrationdto.UserRegistrationRequest;
+import com.denisvasilenko.blogapp.dto.userdto.ResetPasswordDTO;
+import com.denisvasilenko.blogapp.dto.userdto.UserInfoDto;
+import com.denisvasilenko.blogapp.dto.userdto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.exceptions.userException.ResetPasswordException;
 import com.denisvasilenko.blogapp.exceptions.userException.UserAlreadyExistException;
@@ -29,7 +29,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.LongFunction;
 
-
 @Service
 @Log4j2
 public class ProfileServices implements UserDetailsService {
@@ -41,7 +40,8 @@ public class ProfileServices implements UserDetailsService {
     private final PasswordEncoderConfig passwordEncoderConfig;
 
     @Autowired
-    public ProfileServices(UserRepository userRepository, RoleService roleService, PasswordEncoderConfig passwordEncoderConfig) {
+    public ProfileServices(UserRepository userRepository, RoleService roleService,
+            PasswordEncoderConfig passwordEncoderConfig) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.passwordEncoderConfig = passwordEncoderConfig;
@@ -52,7 +52,7 @@ public class ProfileServices implements UserDetailsService {
         try {
             User user = new User();
             user.setUsername(userRegistrationRequest.username());
-            user.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(userRegistrationRequest.password()));
+            user.setPassword(passwordEncoderConfig.beanPasswordEncoder().encode(userRegistrationRequest.password()));
             List<Article> articles = new ArrayList<>();
             user.setArticles(articles);
             user.setRoleCollection(List.of(roleService.getUserRole()));
@@ -76,7 +76,9 @@ public class ProfileServices implements UserDetailsService {
     public void updateUser(String oldUserUsername, UserInfoUpdateDTO userInfoUpdateDTO) {
         User oldUser = processingFoundUser(oldUserUsername, userRepository::findByUsername);
         User updateUser = oldUser.duplicatingUser();
-        if (oldUser.getProfileDescription() == null || !oldUser.getProfileDescription().equals(userInfoUpdateDTO.profileDescription()) && userInfoUpdateDTO.profileDescription() != null) {
+        if (oldUser.getProfileDescription() == null
+                || !oldUser.getProfileDescription().equals(userInfoUpdateDTO.profileDescription())
+                        && userInfoUpdateDTO.profileDescription() != null) {
             updateUser.setProfileDescription(userInfoUpdateDTO.profileDescription());
         }
         userRepository.save(updateUser);
@@ -86,10 +88,12 @@ public class ProfileServices implements UserDetailsService {
     public void resetPassword(String oldUserUsername, ResetPasswordDTO resetPasswordDTO) {
         User oldUser = processingFoundUser(oldUserUsername, userRepository::findByUsername);
         User updateUser = oldUser.duplicatingUser();
-        if (passwordEncoderConfig.beanpasswordEncoder().matches(resetPasswordDTO.oldPassword(), oldUser.getPassword()) && resetPasswordDTO.newPassword() != null) {
-            updateUser.setPassword(passwordEncoderConfig.beanpasswordEncoder().encode(resetPasswordDTO.newPassword()));
+        if (passwordEncoderConfig.beanPasswordEncoder().matches(resetPasswordDTO.oldPassword(), oldUser.getPassword())
+                && resetPasswordDTO.newPassword() != null) {
+            updateUser.setPassword(passwordEncoderConfig.beanPasswordEncoder().encode(resetPasswordDTO.newPassword()));
             userRepository.save(updateUser);
-        } else throw new ResetPasswordException();
+        } else
+            throw new ResetPasswordException();
     }
 
     @Transactional
@@ -123,8 +127,7 @@ public class ProfileServices implements UserDetailsService {
                 user.getUsername(),
                 user.getPassword(),
                 user.getRoleCollection().stream().map(role -> new SimpleGrantedAuthority(role.getName()))
-                        .toList()
-        );
+                        .toList());
     }
 
     @Transactional

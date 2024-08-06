@@ -1,5 +1,4 @@
-package com.denisvasilenko.blogapp.DTO.RegistrationDto;
+package com.denisvasilenko.blogapp.dto.registrationdto;
 
-
-
-public record UserRegistrationRequest(String username,String password) {}
+public record UserRegistrationRequest(String username, String password) {
+}

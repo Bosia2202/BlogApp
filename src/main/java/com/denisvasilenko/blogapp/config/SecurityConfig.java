@@ -27,48 +27,46 @@ public class SecurityConfig {
     private final ProfileServices profileServices;
     private final JwtRequestFilter jwtRequestFilter;
 
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .cors().disable()
-                .authorizeHttpRequests()
-                        .requestMatchers(HttpMethod.PUT,"/article/newArticle").authenticated()
-                        .requestMatchers(HttpMethod.GET,"/article/{articleId}").authenticated()
-                        .requestMatchers(HttpMethod.PATCH,"/article/{articleId}").authenticated()
-                        .requestMatchers(HttpMethod.DELETE,"/article/{articleId}").authenticated()
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.disable())
+                .authorizeHttpRequests(requests -> requests
+                        .requestMatchers(HttpMethod.PUT, "/article/newArticle").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/article/{articleId}").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/article/{articleId}").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/article/{articleId}").authenticated()
                         .requestMatchers(HttpMethod.GET, "/user/{username}").authenticated()
-                        .requestMatchers(HttpMethod.GET,"/user/info").authenticated()
-                        .requestMatchers(HttpMethod.PATCH,"/user/info").authenticated()
-                        .requestMatchers(HttpMethod.DELETE,"/user/info").authenticated()
-                        .requestMatchers(HttpMethod.POST,"/search").authenticated()
-                        .anyRequest().permitAll()
-                .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                .and()
+                        .requestMatchers(HttpMethod.GET, "/user/info").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/user/info").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/user/info").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/search").authenticated()
+                        .anyRequest().permitAll())
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
     @Bean
-    public AuthenticationProvider daoAuthenticationProvider(){
-        DaoAuthenticationProvider daoAuthenticationProvider=new DaoAuthenticationProvider();
+    public AuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         daoAuthenticationProvider.setUserDetailsService(profileServices);
         return daoAuthenticationProvider;
     }
+
     @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager (AuthenticationConfiguration authenticationConfiguration) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
 
 }

@@ -10,7 +10,7 @@ public class CloudArticleTextDoesntDeleteRuntimeException extends RuntimeExcepti
     private final Date timestamp;
 
     public CloudArticleTextDoesntDeleteRuntimeException(String message) {
-        this.message = "ERROR: Article doesn't delete;\n" +"Mistake: "+ message;
+        this.message = "ERROR: Article doesn't delete;\n" + "Mistake: " + message;
         this.timestamp = new Date();
     }
 }

@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.DTO.ArticleDto;
+package com.denisvasilenko.blogapp.dto.articledto;
 
 public record UpdateArticleDto(String newArticleName, String newArticleContent) {
 }

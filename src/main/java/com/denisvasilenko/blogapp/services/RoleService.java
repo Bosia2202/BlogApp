@@ -11,18 +11,19 @@ import org.springframework.stereotype.Service;
 @Log4j2
 public class RoleService {
     private final RoleRepository roleRepository;
+
     @Autowired
     public RoleService(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
+
     public Role getUserRole() {
         try {
-        return roleRepository.findByName("ROLE_USER").orElseThrow(() -> new RoleDoesNotExistException("ROLE_USER"));
-        }
-        catch (RoleDoesNotExistException roleDoesNotExistException) {
-         log.error("CRITICAL ERROR!!!!!", roleDoesNotExistException);
-         System.exit(1);
-         return null;
+            return roleRepository.findByName("ROLE_USER").orElseThrow(() -> new RoleDoesNotExistException("ROLE_USER"));
+        } catch (RoleDoesNotExistException roleDoesNotExistException) {
+            log.error("CRITICAL ERROR!!!!!", roleDoesNotExistException);
+            System.exit(1);
+            return null;
         }
     }
 }

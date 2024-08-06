@@ -1,6 +1,5 @@
 package com.denisvasilenko.blogapp.exceptions.cloud;
 
-
 import lombok.Getter;
 
 import java.util.Date;
@@ -11,7 +10,7 @@ public class CloudArticleTextDoesntCreatedRuntimeExceptions extends RuntimeExcep
     private final Date timestamp;
 
     public CloudArticleTextDoesntCreatedRuntimeExceptions(String articleName, String message) {
-        this.message = "Article "+"'"+articleName+"'"+" doesn't create" +
+        this.message = "Article " + "'" + articleName + "'" + " doesn't create" +
                 "\n Mistake: " + message;
         this.timestamp = new Date();
     }

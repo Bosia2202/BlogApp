@@ -1,3 +1,4 @@
-package com.denisvasilenko.blogapp.DTO.Search;
+package com.denisvasilenko.blogapp.dto.search;
 
-public record UserDtoSearchPreview(String username) {}
+public record UserDtoSearchPreview(String username) {
+}

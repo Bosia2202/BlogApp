@@ -1,4 +1,4 @@
-package com.denisvasilenko.blogapp.cloudStore.DTO;
+package com.denisvasilenko.blogapp.cloudstore.dto;
 
 import com.denisvasilenko.blogapp.models.User;
 import lombok.Getter;
@@ -16,7 +16,8 @@ public class CloudUploadRequest {
     private final LocalDate dateOfCreation;
     private final int likes;
 
-    public CloudUploadRequest(String bucketName, String articleName, String articleContent, User userOwner, LocalDate dateOfCreation) {
+    public CloudUploadRequest(String bucketName, String articleName, String articleContent, User userOwner,
+            LocalDate dateOfCreation) {
         this.bucketName = bucketName;
         this.articleId = UUID.randomUUID();
         this.articleName = articleName;

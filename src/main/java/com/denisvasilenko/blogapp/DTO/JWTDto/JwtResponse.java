@@ -1,6 +1,4 @@
-package com.denisvasilenko.blogapp.DTO.JWTDto;
-
-
+package com.denisvasilenko.blogapp.dto.jwtdto;
 
 public class JwtResponse {
     private String token;

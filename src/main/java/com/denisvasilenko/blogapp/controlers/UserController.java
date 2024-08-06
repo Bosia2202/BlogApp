@@ -1,8 +1,8 @@
 package com.denisvasilenko.blogapp.controlers;
 
-import com.denisvasilenko.blogapp.DTO.UserDto.ResetPasswordDTO;
-import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoDto;
-import com.denisvasilenko.blogapp.DTO.UserDto.UserInfoUpdateDTO;
+import com.denisvasilenko.blogapp.dto.userdto.ResetPasswordDTO;
+import com.denisvasilenko.blogapp.dto.userdto.UserInfoDto;
+import com.denisvasilenko.blogapp.dto.userdto.UserInfoUpdateDTO;
 import com.denisvasilenko.blogapp.exceptions.ExceptionDto;
 import com.denisvasilenko.blogapp.exceptions.userException.NotFoundUserException;
 import com.denisvasilenko.blogapp.exceptions.userException.ResetPasswordException;
@@ -18,20 +18,21 @@ import java.security.Principal;
 @RequestMapping("/user")
 @RestController
 public class UserController {
-   private final ProfileServices profileServices;
+    private final ProfileServices profileServices;
+
     @Autowired
     public UserController(ProfileServices profileServices) {
         this.profileServices = profileServices;
     }
 
     @GetMapping("/{userName}")
-    public ResponseEntity <UserInfoDto> userInfoForAnotherUser(@PathVariable ("userName") String userName) {
+    public ResponseEntity<UserInfoDto> userInfoForAnotherUser(@PathVariable("userName") String userName) {
         UserInfoDto userInfo = profileServices.userInfo(userName);
         return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
 
     @GetMapping("/info")
-    public ResponseEntity <UserInfoDto> userInfo(Principal principal) {
+    public ResponseEntity<UserInfoDto> userInfo(Principal principal) {
         UserInfoDto userInfo = profileServices.userInfo(principal.getName());
         return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
@@ -49,27 +50,27 @@ public class UserController {
     }
 
     @PostMapping("/resetPassword")
-    public ResponseEntity<String> resetPassword(Principal principal, @RequestBody ResetPasswordDTO resetPasswordDTO){
-        profileServices.resetPassword(principal.getName(),resetPasswordDTO);
+    public ResponseEntity<String> resetPassword(Principal principal, @RequestBody ResetPasswordDTO resetPasswordDTO) {
+        profileServices.resetPassword(principal.getName(), resetPasswordDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ExceptionHandler
-    private ResponseEntity<ExceptionDto> resetPasswordException(ResetPasswordException exception){
+    private ResponseEntity<ExceptionDto> resetPasswordException(ResetPasswordException exception) {
         ExceptionDto response = new ExceptionDto(exception.getMessage(),
                 exception.getTimestamp());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
-    private ResponseEntity<ExceptionDto> notFoundUserExceptionResponseEntity(NotFoundUserException exception){
+    private ResponseEntity<ExceptionDto> notFoundUserExceptionResponseEntity(NotFoundUserException exception) {
         ExceptionDto response = new ExceptionDto(exception.getMessage(),
                 exception.getTimestamp());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
-    private ResponseEntity<ExceptionDto> userDeletionExceptionResponseEntity(UserDeletionException exception){
+    private ResponseEntity<ExceptionDto> userDeletionExceptionResponseEntity(UserDeletionException exception) {
         ExceptionDto response = new ExceptionDto(exception.getMessage(),
                 exception.getTimestamp());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
